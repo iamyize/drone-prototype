@@ -1,0 +1,6 @@
+openai==1.30.5
+python-dotenv==1.0.1
+opencv-python==4.10.0.82
+pygame==2.4.0
+numpy==1.26.4
+djitellopy==2.5.0
