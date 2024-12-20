@@ -3,11 +3,10 @@ import time
 import datetime
 
 TEMPERATURE = 0.1
-LOG_FILE_PATH = 'log.txt'
+LOG_FILE_PATH = f"logs/{participantid}_{ct}.txt"
 
 participantid = input("Enter the participant's ID: ")
 ct = datetime.datetime.now()
-LOG_FILE_PATH = f"logs/{participantid}_{ct}.txt"
     
 def load_file(file_path):
     with open(file_path, 'r') as file:
@@ -24,9 +23,9 @@ def get_chatgpt_code(messages,api_key):
                 {"role": "user", "content": messages}
             ]
         
-        #send request 
+        # send request 
         completion = client.chat.completions.create(
-            model="gpt-3.5-turbo",  # Updated model name
+            model="gpt-3.5-turbo",  # todo: update model name
             temperature=TEMPERATURE,
             messages=messages
         )
