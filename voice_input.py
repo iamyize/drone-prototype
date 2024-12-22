@@ -14,7 +14,7 @@ Get input from the microphone and append it to the prompt (which willl be used t
 # https://github.com/Picovoice/porcupine 
 
 porcupine = pvporcupine.create(
-  access_key= 'ucYXcEspP3Lns+2XrcsUXMS6aKYv5dwpHxhrKMIXXIQEuiO6uLbe9w==',
+  access_key= 'access key',
   keywords=['picovoice'],
   sensitivities = [0.5] # a higher sensitivity results in fewer misses at the cost of increasing the false alarm rate. the default is 0.5. 
 )
