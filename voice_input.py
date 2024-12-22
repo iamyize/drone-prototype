@@ -4,7 +4,7 @@ import struct
 import math 
 import simpleaudio as sa
 import whisper
-
+import utils
 '''
 Get input from the microphone and append it to the prompt (which will be used to generate code)
 '''
@@ -14,7 +14,7 @@ Get input from the microphone and append it to the prompt (which will be used to
 # https://github.com/Picovoice/porcupine 
 
 porcupine = pvporcupine.create(
-  access_key= 'ucYXcEspP3Lns+2XrcsUXMS6aKYv5dwpHxhrKMIXXIQEuiO6uLbe9w==',
+  access_key= utils.load_file('/Users/yize/GitHub/drone-prototype/picovoice_key.txt'),
   keywords=['picovoice', 'grapefruit'], # just stupid examples 
   sensitivities = [0.5, 0.5] # a higher sensitivity results in fewer misses at the cost of increasing the false alarm rate. the default is 0.5. 
 )
@@ -39,16 +39,10 @@ audio_stream = pa.open(
 #   f.write(f'System: {file_contents} \n\nTemp: {TEMPERATURE} \n\n\n')
 #messages = [{"role": "system", "content": file_contents}]
 
-def sound_play_threading(sound):
-    wave_obj = sa.WaveObject.from_wave_file(sound)
-    play_obj = wave_obj.play()
-
 def transcribe_audio(frames):
     ct = datetime.datetime.now()
     RECORDING_FILE_PATH = f"audios/{ct}.wav"
     print('Finished recording.')
-    # sound_file = "sounds_wav/processing.wav"
-    # sound_play_threading(sound_file)
 
     begin_time = time.time()
 

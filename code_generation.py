@@ -1,17 +1,13 @@
 import openai
 import time
 import datetime
-
-TEMPERATURE = 0.1
-LOG_FILE_PATH = f"logs/{participantid}_{ct}.txt"
+import utils
 
 participantid = input("Enter the participant's ID: ")
 ct = datetime.datetime.now()
     
-def load_file(file_path):
-    with open(file_path, 'r') as file:
-        return file.read().strip()
-
+TEMPERATURE = 0.1
+LOG_FILE_PATH = f"logs/{participantid}_{ct}.txt"
 
 def get_chatgpt_code(messages,api_key):
     try:
@@ -52,8 +48,8 @@ def get_chatgpt_code(messages,api_key):
 
 if __name__ == "__main__":
     
-    api_key = load_file('/Users/yize/GitHub/drone-prototype/api_key.txt')
-    messages = load_file('/Users/yize/GitHub/drone-prototype/prompt.txt')
+    api_key = utils.load_file('/Users/yize/GitHub/drone-prototype/api_key.txt')
+    messages = utils.load_file('/Users/yize/GitHub/drone-prototype/prompt.txt')
     get_chatgpt_code(messages,api_key)
     print("Generation Done!")
 
