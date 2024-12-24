@@ -1,7 +1,7 @@
 import pyaudio, wave, datetime, openai, time
 import pvporcupine
 import struct
-import math 
+import math
 import simpleaudio as sa
 import whisper
 import utils
@@ -14,7 +14,7 @@ Get input from the microphone and append it to the prompt (which will be used to
 # https://github.com/Picovoice/porcupine 
 
 porcupine = pvporcupine.create(
-  access_key= utils.load_file('/Users/yize/GitHub/drone-prototype/picovoice_key.txt'),
+  access_key= utils.load_file('picovoice_key.txt'),
   keywords=['picovoice', 'grapefruit'], # just stupid examples 
   sensitivities = [0.5, 0.5] # a higher sensitivity results in fewer misses at the cost of increasing the false alarm rate. the default is 0.5. 
 )

@@ -48,8 +48,8 @@ def get_chatgpt_code(messages,api_key):
 
 if __name__ == "__main__":
     
-    api_key = utils.load_file('/Users/yize/GitHub/drone-prototype/api_key.txt')
-    messages = utils.load_file('/Users/yize/GitHub/drone-prototype/prompt.txt')
-    get_chatgpt_code(messages,api_key)
+    api_key = utils.load_file('api_key.txt')
+    messages = utils.load_file('prompt.txt')
+    get_chatgpt_code(messages, api_key)
     print("Generation Done!")
 
