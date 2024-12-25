@@ -90,6 +90,8 @@ if __name__ == "__main__":
             pcm = struct.unpack_from("h" * porcupine.frame_length, data)
             keyword_index = porcupine.process(pcm)
             if keyword_index == 1:
+                # remove 2nd wake word frames, value is arbitrary for now
+                frames = frames[:-(fs//porcupine.frame_length)]
                 print("Second wake word detected! Stopping recording...")
                 break
         
