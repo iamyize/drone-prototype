@@ -9,15 +9,15 @@ ct = datetime.datetime.now()
 TEMPERATURE = 0.1
 LOG_FILE_PATH = f"logs/{participantid}_{ct}.txt"
 
-def get_chatgpt_code(messages,api_key):
+def get_chatgpt_code(messages, api_key):
     try:
         begintime = time.time()
         client = openai.OpenAI(api_key=api_key)
         
-        if isinstance(messages, str):
-            messages = [
-                {"role": "user", "content": messages}
-            ]
+        # if isinstance(messages, str):
+        #     messages = [
+        #         {"role": "user", "content": messages}
+        #     ]
         
         # send request 
         completion = client.chat.completions.create(
@@ -50,6 +50,14 @@ if __name__ == "__main__":
     
     api_key = utils.load_file('api_key.txt')
     messages = utils.load_file('prompt.txt')
+
+    # Prompt initial msg
+    messages = [{"role": "developer", "content": messages}]
+
+    # Insert actl msg here
+    gpt_input = "here"
+    messages.append({"role": "user", "content": gpt_input})
+
     get_chatgpt_code(messages, api_key)
     print("Generation Done!")
 
