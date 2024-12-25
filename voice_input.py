@@ -5,6 +5,7 @@ import math
 import simpleaudio as sa
 import whisper
 import utils
+import os
 '''
 Get input from the microphone and append it to the prompt (which will be used to generate code)
 '''
@@ -40,13 +41,16 @@ audio_stream = pa.open(
 #messages = [{"role": "system", "content": file_contents}]
 
 def transcribe_audio(frames):
-    ct = datetime.datetime.now()
+    # ct = datetime.datetime.now()
+    # Reformat cos windows files cannot have ":"
+    ct = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     RECORDING_FILE_PATH = f"audios/{ct}.wav"
     print('Finished recording.')
 
     begin_time = time.time()
 
     # Save the recorded data as a WAV file
+    os.makedirs(os.path.dirname(RECORDING_FILE_PATH), exist_ok=True)
     wf = wave.open(RECORDING_FILE_PATH, 'wb')
     wf.setnchannels(channels)
     wf.setsampwidth(pa.get_sample_size(sample_format))
