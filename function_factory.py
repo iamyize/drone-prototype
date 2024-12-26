@@ -2,10 +2,16 @@ from tello import Tello
 import time
 import utils
 
+
 class TelloMovement:
     def __init__(self, tello: Tello):
         self.tello = tello
         self.tts_engine = utils.init_tts_engine(voice_name= "com.apple.speech.synthesis.voice.samantha")
+
+    def connect(self):
+        self.tello.connect()
+        message = f"Connected. Battery at {self.tello.get_battery()}%."
+        utils.speak(self.tts_engine, message)
 
     def move_to_position(self, x: int, y: int, z: int, speed: int):
         self.tello.go_xyz_speed(x, y, z, speed)

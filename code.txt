@@ -1,11 +1,2 @@
-Hello! How can I assist you today?Hello! How can I assist you today?obirobot.scoop_from_bowlno(bowlno=0)
-obirobot.move_to_mouth()
-obirobot.time_delay(4)
-
-obirobot.scrape_then_scoop_bowlno(bowlno=1)
-obirobot.move_to_mouth()
-obirobot.time_delay(4)
-
-obirobot.scoop_from_bowlno(bowlno=2)
-obirobot.move_to_mouth()
-obirobot.time_delay(4)
+drone.take_off()
+drone.land()

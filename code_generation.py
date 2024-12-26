@@ -33,7 +33,13 @@ def get_chatgpt_code(messages, api_key):
         output = completion.choices[0].message.content
         messages.append({"role": "assistant", "content": output})
         print("ChatGPT: " + output)
-        
+
+        if "```" in output:
+            output = output.split("```")[1]
+            output = output.replace("python", "")
+
+        output = '\n'.join(line for line in output.splitlines() if line.strip())
+
         with open('code.txt', 'w') as f:
             f.write(output)
 
