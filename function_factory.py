@@ -1,6 +1,8 @@
 from tello import Tello
 import time
 import utils
+from ultralytics import YOLO
+
 
 
 class TelloMovement:
@@ -39,4 +41,11 @@ class TelloMovement:
             f"I've been flying for {flight_time} seconds, "
             f"and the temperature is {temperature} degrees celsius."
         )
+        utils.speak(self.tts_engine, message)
+
+    def object_detection(self):
+        
+        model = YOLO("yolo11n.pt") # yolo11
+        result = model("https://ultralytics.com/images/bus.jpg")
+        message = f"I have detected {result.names} in the image."
         utils.speak(self.tts_engine, message)
