@@ -166,3 +166,4 @@ openai_key.txt
 pivovoice_key.txt
 *.txt
 *.txt
+/audios
