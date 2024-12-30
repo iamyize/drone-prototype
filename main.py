@@ -8,13 +8,11 @@ import tello
 
 
 if __name__ == '__main__':
-    # drone = TelloMovement(tello.Tello())
-    # drone.connect()
 
     frames = voice_input.listen()
     voice_input.transcribe_audio(frames)
 
-    api_key = utils.load_file('api_key.txt')
+    api_key = utils.load_file('openai_key.txt')
     messages = utils.load_file('prompt.txt')
     code_generation.get_chatgpt_code(messages, api_key)
     print("Generation Done!")
@@ -30,6 +28,8 @@ if __name__ == '__main__':
 
     elif flag == '1':
         try:
+            drone = TelloMovement(tello.Tello())
+            drone.connect()
             exec(code, globals())
         except Exception as e:
             print(f"An error occurred: {str(e)}")
