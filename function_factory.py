@@ -3,6 +3,8 @@ import base64
 from tello import Tello
 import datetime
 import utils
+from ultralytics import YOLO
+
 import openai
 import cv2
 import pathlib as Path
@@ -48,6 +50,12 @@ class TelloMovement:
         )
         utils.speak(self.tts_engine, message)
 
+    def object_detection(self):
+
+        model = YOLO("yolo11n.pt") # yolo11
+        result = model("https://ultralytics.com/images/bus.jpg")
+        message = f"I have detected {result.names} in the image."
+        utils.speak(self.tts_engine, message)
     def chatgpt_read_image(self):
         self.tello.streamon()
         temp_img = self.tello.get_frame_read().frame
