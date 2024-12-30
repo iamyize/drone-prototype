@@ -8,8 +8,7 @@ import tello
 
 
 if __name__ == '__main__':
-    # drone = TelloMovement(tello.Tello())
-    # drone.connect()
+
 
     frames = voice_input.listen()
     voice_input.transcribe_audio(frames)
@@ -21,7 +20,7 @@ if __name__ == '__main__':
 
     with open('code.txt', 'r') as f:
         code = f.read()
-    print(f"Code generated:\n{code}")
+    # print(f"Code generated:\n{code}")
 
     flag = input("To exit, enter 0. To execute code, enter 1:")
 
@@ -30,7 +29,10 @@ if __name__ == '__main__':
 
     elif flag == '1':
         try:
+            drone = TelloMovement(tello.Tello())
+            drone.connect()
             exec(code, globals())
+
         except Exception as e:
             print(f"An error occurred: {str(e)}")
 

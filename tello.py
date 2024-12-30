@@ -11,7 +11,7 @@ from typing import Optional, Union, Type, Dict
 
 from enforce_types import enforce_types
 
-#import av
+import av
 import numpy as np
 
 
@@ -33,7 +33,7 @@ class Tello:
     """
     # Send and receive commands, client socket
     # Changed response timeout
-    RESPONSE_TIMEOUT = 7  # in seconds
+    RESPONSE_TIMEOUT = 15  # in seconds
     TAKEOFF_TIMEOUT = 20  # in seconds
     FRAME_GRAB_TIMEOUT = 5
     TIME_BTW_COMMANDS = 0.1  # in seconds
