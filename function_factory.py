@@ -18,7 +18,7 @@ class TelloMovement:
         message = f"I am moving."
         utils.speak(self.tts_engine, message)
     
-    def takeoff(self):
+    def take_off(self):
         self.tello.takeoff()
         message = f"I am taking off."
         utils.speak(self.tts_engine, message)
