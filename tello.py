@@ -557,10 +557,11 @@ class Tello:
             if not self.get_current_state():
                 raise TelloException('Did not receive a state packet from the Tello')
 
+    # Send every few (try 4?) seconds to prevent the drone from auto landing
     def send_keepalive(self):
         """Send a keepalive packet to prevent the drone from landing after 15s
         """
-        self.send_control_command("keepalive")
+        self.send_control_command("command")
 
     def turn_motor_on(self):
         """Turn on motors without flying (mainly for cooling)
