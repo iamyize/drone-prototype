@@ -75,15 +75,12 @@ class TelloMovement:
         self.tello.streamon()
         current_time = time.time()
 
-        # Min 5 seconds to escape black screen input
-        while time.time() < current_time + 5:
-            temp_img = self.tello.get_frame_read().frame
-
-        # temp_img = self.tello.get_frame_read().frame
-        # while temp_img is None:
-        #     temp_img = self.tello.get_frame_read().frame
+        temp_img_obj = self.tello.get_frame_read()
+        time.sleep(1)
 
         self.tello.streamoff()
+
+        temp_img = temp_img_obj.frame
 
         elapsed_time = time.time() - current_time
         image_path = f"resources/images/{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.jpg"
@@ -91,8 +88,9 @@ class TelloMovement:
 
         os.makedirs(os.path.dirname(image_path), exist_ok=True)
 
-        # temp_img = cv2.cvtColor(temp_img, cv2.COLOR_RGB2BGR)
+        temp_img = cv2.cvtColor(temp_img, cv2.COLOR_RGB2BGR)
         cv2.imwrite(image_path, temp_img)
+        cv2.destroyAllWindows()
 
         return image_path
 
