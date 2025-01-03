@@ -23,10 +23,13 @@ class TelloMovement:
         self.tello.connect()
         message = f"Connected. Battery at {self.tello.get_battery()}%."
         print(message)
-        utils.speak(self.tts_engine, message)
+        # utils.speak(self.tts_engine, message)
 
     def sleep(self):
         time.sleep(4)
+
+    def test(self):
+        self.tello
 
     def move_to_position(self, x: int, y: int, z: int, speed: int):
         self.tello.go_xyz_speed(x, y, z, speed)
@@ -53,16 +56,18 @@ class TelloMovement:
         message = f"I am landing."
         utils.speak(self.tts_engine, message)
 
+    # query_xxx gives different formats which cannot just be cast to int, e.g. time->0s, temp->80-82C
+    # safer to just use get_xxx unless want to parse through each possible format
     def get_status(self):
         battery = self.tello.get_battery()
-        # flight_time = self.tello.query_flight_time()
-        # temperature = self.tello.query_temperature()
+        flight_time = self.tello.get_flight_time()
+        temperature = self.tello.get_temperature()
 
         message = (
             f"Here's my current status: "
             f"Battery is at {battery} percent, "
-            # f"I've been flying for {flight_time} seconds, "
-            # f"and the temperature is {temperature} degrees celsius."
+            f"I've been flying for {flight_time} seconds, "
+            f"and the temperature is {temperature} degrees celsius."
         )
         utils.speak(self.tts_engine, message)
 
@@ -74,15 +79,19 @@ class TelloMovement:
         while time.time() < current_time + 5:
             temp_img = self.tello.get_frame_read().frame
 
+        # temp_img = self.tello.get_frame_read().frame
+        # while temp_img is None:
+        #     temp_img = self.tello.get_frame_read().frame
+
         self.tello.streamoff()
 
         elapsed_time = time.time() - current_time
-        # image_path = f"resources/images/image1.jpg"
         image_path = f"resources/images/{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.jpg"
         print(f"img capture time: {elapsed_time}")
 
         os.makedirs(os.path.dirname(image_path), exist_ok=True)
 
+        # temp_img = cv2.cvtColor(temp_img, cv2.COLOR_RGB2BGR)
         cv2.imwrite(image_path, temp_img)
 
         return image_path
