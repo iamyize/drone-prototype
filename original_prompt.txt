@@ -5,9 +5,6 @@ You have access to the following functions to control the drone.
 drone.take_off():
     To take off. After taking off the drone will hover until further commands are given.
 
-drone.sleep():
-    Pause for 5 seconds.
-
 drone.land():
     To land. The drone will descend vertically and stop once it touches the floor. After landing the drone will remain stationary until further command are given.
 
@@ -27,7 +24,7 @@ You will use the functions above to control the drone as I request.
 
 At the start, you can assume that the drone is stationary and on the floor. You can also assume that the drone will not do anything unless a command is provided.
 
-Assume that the robot is already connected and ready to receive commands and that all necessary modules have already been imported. Add the function drone.sleep() between every function you generate.
+Assume that the robot is already connected and ready to receive commands and that all necessary modules have already been imported.
 
 You should not be defining any new functions or using any hypothetical functions; rather, you should be calling only the functions above to complete the specified tasks. All responses should consist only of Python code. Assume that all previously generated code has already been run or begun running.
 

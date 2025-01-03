@@ -23,38 +23,32 @@ class TelloMovement:
         self.tello.connect()
         message = f"Connected. Battery at {self.tello.get_battery()}%."
         print(message)
-        # utils.speak(self.tts_engine, message)
-
-    def sleep(self):
-        time.sleep(4)
-
-    def test(self):
-        self.tello
+        utils.speak(self.tts_engine, message)
 
     def move_to_position(self, x: int, y: int, z: int, speed: int):
-        self.tello.go_xyz_speed(x, y, z, speed)
         message = f"I am moving."
         utils.speak(self.tts_engine, message)
+        self.tello.go_xyz_speed(x, y, z, speed)
 
     def move_to_window(self):
-        self.tello.go_xyz_speed(50, 0, 0, 25)
         message = f"I am moving to the window."
         utils.speak(self.tts_engine, message)
+        self.tello.go_xyz_speed(50, 0, 0, 25)
 
     def return_to_origin(self):
-        self.tello.go_xyz_speed(-50, 0, 0, 25)
         message = f"I am moving back."
         utils.speak(self.tts_engine, message)
+        self.tello.go_xyz_speed(-50, 0, 0, 25)
 
     def take_off(self):
-        self.tello.takeoff()
         message = f"I am taking off."
         utils.speak(self.tts_engine, message)
+        self.tello.takeoff()
 
     def land(self):
-        self.tello.land()
         message = f"I am landing."
         utils.speak(self.tts_engine, message)
+        self.tello.land()
 
     # query_xxx gives different formats which cannot just be cast to int, e.g. time->0s, temp->80-82C
     # safer to just use get_xxx unless want to parse through each possible format
@@ -72,6 +66,7 @@ class TelloMovement:
         utils.speak(self.tts_engine, message)
 
     def capture_image(self):
+        print("capturing image")
         self.tello.streamon()
         current_time = time.time()
 
@@ -95,9 +90,12 @@ class TelloMovement:
         return image_path
 
     def object_detection(self):
+        message = f"I am detecting objects"
+        utils.speak(self.tts_engine, message)
 
         image_path = self.capture_image()
-        # self.tello.send_keepalive()
+        print("detecting objects")
+        self.tello.send_keepalive()
         time.sleep(2)
 
         with open(image_path, "rb") as image_file:
@@ -124,9 +122,9 @@ class TelloMovement:
         )
 
         message = image_description.choices[0].message.content
-        utils.speak(self.tts_engine, message)
+        self.tello.send_keepalive()
         print(message)
-
+        utils.speak(self.tts_engine, message)
 
 
     def object_yolo(self, image_path):
@@ -138,42 +136,4 @@ class TelloMovement:
         print(result)
         message = f"I have detected {result} in the image."
         utils.speak(self.tts_engine, message)
-
-
-    # def chatgpt_read_image(self):
-    #     self.tello.streamon()
-    #     temp_img = self.tello.get_frame_read().frame
-    #
-    #     image_path = f"resources/images/{datetime.datetime().now().strftime('%Y-%m-%d_%H-%M-%S')}.jpg"
-    #
-    #     os.makedirs(os.path.dirname(image_path), exist_ok=True)
-    #
-    #     cv2.imwrite(image_path, temp_img)
-    #
-    #     with open(image_path, "rb") as image_file:
-    #         base64_image = base64.b64encode(image_file.read()).decode('utf-8')
-    #
-    #     prompt = "Identify and describe all objects in the image"
-    #     image_description = self.client.chat.completions.create(
-    #         model="gpt-4o",
-    #         messages=[
-    #             {
-    #                 "role": "user",
-    #                 "content": [
-    #                     {"type": "text", "text": prompt},
-    #                     {
-    #                         "type": "image_url",
-    #                         "image_url": {
-    #                             "url": f"data:image/jpeg;base64,{base64_image}"
-    #                         },
-    #                     },
-    #                 ],
-    #             }
-    #         ],
-    #         max_tokens=50,
-    #     )
-    #
-    #     message = image_description.choices[0].message.content
-    #     utils.speak(self.tts_engine, message)
-    #     self.tello.streamoff()
 

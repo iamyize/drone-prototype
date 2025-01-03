@@ -8,8 +8,6 @@ import tello
 
 
 if __name__ == '__main__':
-
-
     frames = voice_input.listen()
     voice_input.transcribe_audio(frames)
 
@@ -20,7 +18,6 @@ if __name__ == '__main__':
 
     with open('code.txt', 'r') as f:
         code = f.read()
-    # print(f"Code generated:\n{code}")
 
     flag = input("To exit, enter 0. To execute code, enter 1:")
 
