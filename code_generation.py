@@ -4,13 +4,15 @@ import datetime
 import utils
 import os
 
-participantid = input("Enter the participant's ID: ")
+# participantid = input("Enter the participant's ID: ")
+participantid = 1
 # ct = datetime.datetime.now()
 # Reformat cos windows files cannot have ":"
 ct = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     
 TEMPERATURE = 0.1
 LOG_FILE_PATH = f"logs/{participantid}_{ct}.txt"
+
 
 def get_chatgpt_code(messages, api_key):
     try:
