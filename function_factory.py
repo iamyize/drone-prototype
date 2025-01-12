@@ -9,7 +9,6 @@ from ultralytics import YOLO
 
 import openai
 import cv2
-import pathlib as Path
 
 
 class TelloMovement:
@@ -18,6 +17,7 @@ class TelloMovement:
         self.tello = tello
         self.tts_engine = utils.init_tts_engine()
         self.client = openai.OpenAI(api_key=api_key)
+        self.locations = ["window", "table", "floor"]
 
     def connect(self):
         self.tello.connect()
@@ -102,7 +102,7 @@ class TelloMovement:
         utils.speak(self.tts_engine, message)
 
         image_path = self.capture_image()
-        print("detecting objects")
+        print("Detecting objects")
         self.tello.send_keepalive()
 
         with open(image_path, "rb") as image_file:
@@ -134,14 +134,11 @@ class TelloMovement:
         utils.speak(self.tts_engine, message)
 
     def check_item(self, item, image_paths):
-        # message = f"I am detecting objects"
-        # utils.speak(self.tts_engine, message)
+        message = f"I am looking for {item}"
+        utils.speak(self.tts_engine, message)
 
-        # image_path = self.capture_image()
         print(f"Checking for {item}")
         current_time = time.time()
-        # self.tello.send_keepalive()
-        # time.sleep(2)
 
         base64_images = []
         for image_path in image_paths:
@@ -176,16 +173,14 @@ class TelloMovement:
         )
 
         message = image_description.choices[0].message.content
-        locations = ["window", "table", "floor"]
         if int(message) == 0:
             message = f"The {item} cannot be found."
         else:
-            message = f"The {item} is at the {locations[int(message) - 1]}."
-        # self.tello.send_keepalive()
+            message = f"The {item} is at the {self.locations[int(message) - 1]}."
         print(message)
         elapsed_time = time.time() - current_time
         print(elapsed_time)
-        # utils.speak(self.tts_engine, message)
+        utils.speak(self.tts_engine, message)
 
     def find_item(self, item):
         image_paths = []
