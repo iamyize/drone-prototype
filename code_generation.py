@@ -18,15 +18,24 @@ def get_chatgpt_code(messages, api_key):
     try:
         begintime = time.time()
         client = openai.OpenAI(api_key=api_key)
+
+        developer_prompt = utils.load_file("original_prompt.txt")
         
         if isinstance(messages, str):
             messages = [
-                {"role": "user", "content": messages}
+                {
+                    "role": "developer",
+                    "content": [{"type": "text", "text": developer_prompt}]
+                },
+                {
+                    "role": "user",
+                    "content": [{"type": "text", "text": messages}]
+                }
             ]
         
         # send request 
         completion = client.chat.completions.create(
-            model="gpt-3.5-turbo",  # todo: update model name
+            model="gpt-4o",  # todo: update model name
             temperature=TEMPERATURE,
             messages=messages
         )
@@ -34,13 +43,14 @@ def get_chatgpt_code(messages, api_key):
         elapsedtime = time.time() - begintime
         output = completion.choices[0].message.content
         messages.append({"role": "assistant", "content": output})
-        print("ChatGPT: " + output)
 
         if "```" in output:
             output = output.split("```")[1]
             output = output.replace("python", "")
 
         output = '\n'.join(line for line in output.splitlines() if line.strip())
+
+        print("ChatGPT:\n" + output)
 
         with open('code.txt', 'w') as f:
             f.write(output)
@@ -58,10 +68,10 @@ def get_chatgpt_code(messages, api_key):
         raise
     
 
-if __name__ == "__main__":
+# if __name__ == "__main__":
     
-    api_key = utils.load_file('api_key.txt')
-    messages = utils.load_file('prompt.txt')
+    # api_key = utils.load_file('api_key.txt')
+    # messages = utils.load_file('command_prompt.txt')
 
     # # Prompt initial msg
     # messages = [{"role": "developer", "content": messages}]
@@ -70,6 +80,6 @@ if __name__ == "__main__":
     # gpt_input = "here"
     # messages.append({"role": "user", "content": gpt_input})
 
-    get_chatgpt_code(messages, api_key)
-    print("Generation Done!")
+    # get_chatgpt_code(messages, api_key)
+    # print("Generation Done!")
 

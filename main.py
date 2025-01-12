@@ -8,11 +8,11 @@ import tello
 
 
 if __name__ == '__main__':
-    frames = voice_input.listen()
-    voice_input.transcribe_audio(frames)
+    # frames = voice_input.listen()
+    # voice_input.transcribe_audio(frames)
 
     api_key = utils.load_file('api_key.txt')
-    messages = utils.load_file('prompt.txt')
+    messages = utils.load_file('command_prompt.txt')
     code_generation.get_chatgpt_code(messages, api_key)
     print("Generation Done!")
 

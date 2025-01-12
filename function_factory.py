@@ -184,14 +184,12 @@ class TelloMovement:
 
     def find_item(self, item):
         image_paths = []
-        self.take_off()
         self.move_to_window()
         image_paths.append(self.capture_image())
         self.move_to_table()
         image_paths.append(self.capture_image())
         self.move_to_floor()
         image_paths.append(self.capture_image())
-        self.land()
         self.check_item(item, image_paths)
 
     def check_object_yolo(self, image_path):
