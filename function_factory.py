@@ -33,14 +33,25 @@ class TelloMovement:
         message = f"I am moving."
         utils.speak(self.tts_engine, message)
 
-    def move_to_window(self):
+    def origin_to_table(self):
         self.tello.go_xyz_speed(50, 0, 0, 25)
         message = f"I am moving to the window."
         utils.speak(self.tts_engine, message)
 
-    def return_to_origin(self):
+    def table_to_origin(self):
         self.tello.go_xyz_speed(-50, 0, 0, 25)
         message = f"I am moving back."
+        utils.speak(self.tts_engine, message)
+    
+    def table_to_shelf(self):
+        self.tello.go_xyz_speed(0, 0, 30, 25)
+        self.tello.go_xyz_speed(50, 0, 0, 25)
+        message = f"I am moving to the shelf."
+        utils.speak(self.tts_engine, message)
+
+    def search_the_room(self):
+        self.tello.go_xyz_speed(0, 0, 0, 25)
+        message = f"I am scanning the room."
         utils.speak(self.tts_engine, message)
 
     def take_off(self):
@@ -96,7 +107,7 @@ class TelloMovement:
         with open(image_path, "rb") as image_file:
             base64_image = base64.b64encode(image_file.read()).decode('utf-8')
 
-        prompt = "Identify and list the 3 most important objects in the image. Keep it brief."
+        prompt = "List the 3 most important objects in the image. Keep it brief."
         image_description = self.client.chat.completions.create(
             model="gpt-4o",
             messages=[
@@ -120,7 +131,37 @@ class TelloMovement:
         utils.speak(self.tts_engine, message)
         print(message)
 
+    def text_recognition(self):
 
+        image_path = self.capture_image()
+        time.sleep(2)
+
+        with open(image_path, "rb") as image_file:
+            base64_image = base64.b64encode(image_file.read()).decode('utf-8')
+
+        prompt = "Read the text in the image."
+        image_description = self.client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": prompt},
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": f"data:image/jpeg;base64,{base64_image}"
+                            },
+                        },
+                    ],
+                }
+            ],
+            max_tokens=50,
+        )
+
+        message = image_description.choices[0].message.content
+        utils.speak(self.tts_engine, message)
+        print(message)
 
     def object_yolo(self, image_path):
         model = YOLO("yolo11n.pt") # yolo11
