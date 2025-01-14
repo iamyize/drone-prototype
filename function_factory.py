@@ -9,6 +9,7 @@ from ultralytics import YOLO
 
 import openai
 import cv2
+import pathlib as Path
 
 
 class TelloMovement:
@@ -30,23 +31,26 @@ class TelloMovement:
         utils.speak(self.tts_engine, message)
         self.tello.go_xyz_speed(x, y, z, speed)
 
-    def move_to_window(self):
+    def origin_to_table(self):
+        self.tello.go_xyz_speed(50, 0, 0, 25)
         message = f"I am moving to the window."
         utils.speak(self.tts_engine, message)
-        self.tello.go_xyz_speed(50, 0, 0, 25)
 
-    def move_to_table(self):
-        self.tello.rotate_counter_clockwise(90)
-        # self.tello.go_xyz_speed()
-
-    def move_to_floor(self):
-        self.tello.rotate_counter_clockwise(90)
-        self.tello.go_xyz_speed(50, 0, 0, 25)
-
-    def return_to_origin(self):
+    def table_to_origin(self):
+        self.tello.go_xyz_speed(-50, 0, 0, 25)
         message = f"I am moving back."
         utils.speak(self.tts_engine, message)
-        self.tello.go_xyz_speed(-50, 0, 0, 25)
+
+    def table_to_shelf(self):
+        self.tello.go_xyz_speed(0, 0, 30, 25)
+        self.tello.go_xyz_speed(50, 0, 0, 25)
+        message = f"I am moving to the shelf."
+        utils.speak(self.tts_engine, message)
+
+    def search_the_room(self):
+        self.tello.go_xyz_speed(0, 0, 0, 25)
+        message = f"I am scanning the room."
+        utils.speak(self.tts_engine, message)
 
     def take_off(self):
         message = f"I am taking off."
@@ -108,7 +112,39 @@ class TelloMovement:
         with open(image_path, "rb") as image_file:
             base64_image = base64.b64encode(image_file.read()).decode('utf-8')
 
-        prompt = "Identify and list the 3 most important objects in the image. Keep it brief."
+        prompt = "List the 3 most important objects in the image. Keep it brief."
+        image_description = self.client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": prompt},
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": f"data:image/jpeg;base64,{base64_image}"
+                            },
+                        },
+                    ],
+                }
+            ],
+            max_tokens=50,
+        )
+
+        message = image_description.choices[0].message.content
+        utils.speak(self.tts_engine, message)
+        print(message)
+
+    def text_recognition(self):
+
+        image_path = self.capture_image()
+        time.sleep(2)
+
+        with open(image_path, "rb") as image_file:
+            base64_image = base64.b64encode(image_file.read()).decode('utf-8')
+
+        prompt = "Read the text in the image."
         image_description = self.client.chat.completions.create(
             model="gpt-4o",
             messages=[
@@ -182,6 +218,7 @@ class TelloMovement:
         print(elapsed_time)
         utils.speak(self.tts_engine, message)
 
+    def object_yolo(self, image_path):
     def find_item(self, item):
         image_paths = []
         self.move_to_window()
@@ -200,4 +237,42 @@ class TelloMovement:
         print(f"detection time: {elapsed_time}")
         message = f"I have detected {result} in the image."
         utils.speak(self.tts_engine, message)
+
+
+    # def chatgpt_read_image(self):
+    #     self.tello.streamon()
+    #     temp_img = self.tello.get_frame_read().frame
+    #
+    #     image_path = f"resources/images/{datetime.datetime().now().strftime('%Y-%m-%d_%H-%M-%S')}.jpg"
+    #
+    #     os.makedirs(os.path.dirname(image_path), exist_ok=True)
+    #
+    #     cv2.imwrite(image_path, temp_img)
+    #
+    #     with open(image_path, "rb") as image_file:
+    #         base64_image = base64.b64encode(image_file.read()).decode('utf-8')
+    #
+    #     prompt = "Identify and describe all objects in the image"
+    #     image_description = self.client.chat.completions.create(
+    #         model="gpt-4o",
+    #         messages=[
+    #             {
+    #                 "role": "user",
+    #                 "content": [
+    #                     {"type": "text", "text": prompt},
+    #                     {
+    #                         "type": "image_url",
+    #                         "image_url": {
+    #                             "url": f"data:image/jpeg;base64,{base64_image}"
+    #                         },
+    #                     },
+    #                 ],
+    #             }
+    #         ],
+    #         max_tokens=50,
+    #     )
+    #
+    #     message = image_description.choices[0].message.content
+    #     utils.speak(self.tts_engine, message)
+    #     self.tello.streamoff()
 
