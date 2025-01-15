@@ -18,7 +18,7 @@ class TelloMovement:
         self.tello = tello
         self.tts_engine = utils.init_tts_engine()
         self.client = openai.OpenAI(api_key=api_key)
-        self.locations = ["window", "table", "floor"]
+        self.locations = ["table", "shelf"]
 
     def connect(self):
         self.tello.connect()
@@ -32,30 +32,31 @@ class TelloMovement:
         self.tello.go_xyz_speed(x, y, z, speed)
 
     def origin_to_table(self):
-        self.tello.go_xyz_speed(50, 0, 0, 25)
-        message = f"I am moving to the window."
+        message = f"I am moving to the table."
         utils.speak(self.tts_engine, message)
+        self.tello.go_xyz_speed(60, 0, -10, 25)
 
     def table_to_origin(self):
-        self.tello.go_xyz_speed(-50, 0, 0, 25)
         message = f"I am moving back."
         utils.speak(self.tts_engine, message)
+        self.tello.go_xyz_speed(-60, 0, 0, 25)
 
     def table_to_shelf(self):
-        self.tello.go_xyz_speed(0, 0, 30, 25)
-        self.tello.go_xyz_speed(50, 0, 0, 25)
         message = f"I am moving to the shelf."
         utils.speak(self.tts_engine, message)
+        self.tello.go_xyz_speed(70, 0, 30, 25)
+        self.tello.rotate_counter_clockwise(45)
 
-    def search_the_room(self):
-        self.tello.go_xyz_speed(0, 0, 0, 25)
-        message = f"I am scanning the room."
-        utils.speak(self.tts_engine, message)
+    # def search_the_room(self):
+    #     message = f"I am scanning the room."
+    #     utils.speak(self.tts_engine, message)
+    #     self.tello.go_xyz_speed(0, 0, 0, 25)
 
     def take_off(self):
         message = f"I am taking off."
         utils.speak(self.tts_engine, message)
         self.tello.takeoff()
+        time.sleep(1.5)
 
     def land(self):
         message = f"I am landing."
@@ -112,7 +113,7 @@ class TelloMovement:
         with open(image_path, "rb") as image_file:
             base64_image = base64.b64encode(image_file.read()).decode('utf-8')
 
-        prompt = "List the 3 most important objects in the image. Keep it brief."
+        prompt = "List the 3 most important objects in the image. Keep it brief but in complete sentences."
         image_description = self.client.chat.completions.create(
             model="gpt-4o",
             messages=[
@@ -133,13 +134,13 @@ class TelloMovement:
         )
 
         message = image_description.choices[0].message.content
+        self.tello.send_keepalive()
         utils.speak(self.tts_engine, message)
         print(message)
 
     def text_recognition(self):
-
         image_path = self.capture_image()
-        time.sleep(2)
+        self.tello.send_keepalive()
 
         with open(image_path, "rb") as image_file:
             base64_image = base64.b64encode(image_file.read()).decode('utf-8')
@@ -218,15 +219,14 @@ class TelloMovement:
         print(elapsed_time)
         utils.speak(self.tts_engine, message)
 
-    def object_yolo(self, image_path):
     def find_item(self, item):
         image_paths = []
-        self.move_to_window()
+        self.origin_to_table()
         image_paths.append(self.capture_image())
-        self.move_to_table()
+        self.table_to_shelf()
         image_paths.append(self.capture_image())
-        self.move_to_floor()
-        image_paths.append(self.capture_image())
+        self.tello.rotate_counter_clockwise(315)
+        self.tello.go_xyz_speed(-130, 0, 0, 25)
         self.check_item(item, image_paths)
 
     def check_object_yolo(self, image_path):
