@@ -138,7 +138,7 @@ class TelloMovement:
         utils.speak(self.tts_engine, message)
         print(message)
 
-    def text_recognition(self):
+    def recognise_text(self):
         image_path = self.capture_image()
         self.tello.send_keepalive()
 
