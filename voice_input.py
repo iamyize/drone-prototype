@@ -34,11 +34,12 @@ audio_stream = pa.open(
                 frames_per_buffer=porcupine.frame_length,
                 input_device_index=mic_num)
 
-#with open('prompt.txt', 'r') as f:
+#with open('command_prompt.txt', 'r') as f:
   #file_contents = f.read()
 # with open(LOG_FILE_PATH, 'w') as f:
 #   f.write(f'System: {file_contents} \n\nTemp: {TEMPERATURE} \n\n\n')
 #messages = [{"role": "system", "content": file_contents}]
+
 
 def transcribe_audio(frames):
     # ct = datetime.datetime.now()
@@ -65,12 +66,8 @@ def transcribe_audio(frames):
     print("Transcription Time: " + str(elapsed_time))
     print("Text: " + result)
 
-    with open('original_prompt.txt', 'r') as f:
-        original_prompt = f.read()
-
-    with open('prompt.txt', 'w') as f:
-        f.write(original_prompt)
-        f.write("\nUser: " + result + "\n")
+    with open('command_prompt.txt', 'w') as f:
+        f.write(result)
 
     return result
 
