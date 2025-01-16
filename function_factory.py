@@ -102,7 +102,7 @@ class TelloMovement:
 
         return image_path
 
-    def object_detection(self):
+    def detect_objects(self):
         message = f"I am detecting objects"
         utils.speak(self.tts_engine, message)
 

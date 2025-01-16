@@ -17,7 +17,7 @@ drone.table_to_origin():
 drone.get_status():
     To describe the basic status of the drone, including battery level, flight time, and temperature. The drone will remain stationary during this command.
 
-drone.object_detection():
+drone.detect_objects():
     To detect objects using the camera attached to the drone. Use this for a command that requires you to detect unspecified objects. Do not use this if the command specifies an object.
 
 drone.find_item(item):
