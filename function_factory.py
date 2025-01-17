@@ -52,6 +52,18 @@ class TelloMovement:
     #     utils.speak(self.tts_engine, message)
     #     self.tello.go_xyz_speed(0, 0, 0, 25)
 
+    def origin_to_shelf(self):
+        message = f"I am moving to the shelf."
+        utils.speak(self.tts_engine, message)
+        self.tello.go_xyz_speed(130, 0, 0, 25)
+        self.tello.rotate_counter_clockwise(45)
+
+    def shelf_to_origin(self):
+        message = f"I am moving back."
+        utils.speak(self.tts_engine, message)
+        self.tello.rotate_clockwise(45)
+        self.tello.go_xyz_speed(-130, 0, 0, 25)
+
     def take_off(self):
         message = f"I am taking off."
         utils.speak(self.tts_engine, message)

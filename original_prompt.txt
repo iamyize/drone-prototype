@@ -12,7 +12,13 @@ drone.origin_to_table():
     To fly to the table from the origin.
 
 drone.table_to_origin():
-    To return to the original position.
+    To return to the original position from the table.
+
+drone.origin_to_shelf():
+    To fly to the shelf from the origin.
+
+drone.shelf_to_origin():
+    To return to the original position from the shelf.
 
 drone.get_status():
     To describe the basic status of the drone, including battery level, flight time, and temperature. The drone will remain stationary during this command.
