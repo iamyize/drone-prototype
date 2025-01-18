@@ -52,6 +52,18 @@ class TelloMovement:
     #     utils.speak(self.tts_engine, message)
     #     self.tello.go_xyz_speed(0, 0, 0, 25)
 
+    def origin_to_shelf(self):
+        message = f"I am moving to the shelf."
+        utils.speak(self.tts_engine, message)
+        self.tello.go_xyz_speed(130, 0, 0, 25)
+        self.tello.rotate_counter_clockwise(45)
+
+    def shelf_to_origin(self):
+        message = f"I am moving back."
+        utils.speak(self.tts_engine, message)
+        self.tello.rotate_clockwise(45)
+        self.tello.go_xyz_speed(-130, 0, 0, 25)
+
     def take_off(self):
         message = f"I am taking off."
         utils.speak(self.tts_engine, message)
@@ -102,7 +114,7 @@ class TelloMovement:
 
         return image_path
 
-    def object_detection(self):
+    def detect_objects(self):
         message = f"I am detecting objects"
         utils.speak(self.tts_engine, message)
 
@@ -138,7 +150,7 @@ class TelloMovement:
         utils.speak(self.tts_engine, message)
         print(message)
 
-    def text_recognition(self):
+    def recognise_text(self):
         image_path = self.capture_image()
         self.tello.send_keepalive()
 
@@ -237,42 +249,4 @@ class TelloMovement:
         print(f"detection time: {elapsed_time}")
         message = f"I have detected {result} in the image."
         utils.speak(self.tts_engine, message)
-
-
-    # def chatgpt_read_image(self):
-    #     self.tello.streamon()
-    #     temp_img = self.tello.get_frame_read().frame
-    #
-    #     image_path = f"resources/images/{datetime.datetime().now().strftime('%Y-%m-%d_%H-%M-%S')}.jpg"
-    #
-    #     os.makedirs(os.path.dirname(image_path), exist_ok=True)
-    #
-    #     cv2.imwrite(image_path, temp_img)
-    #
-    #     with open(image_path, "rb") as image_file:
-    #         base64_image = base64.b64encode(image_file.read()).decode('utf-8')
-    #
-    #     prompt = "Identify and describe all objects in the image"
-    #     image_description = self.client.chat.completions.create(
-    #         model="gpt-4o",
-    #         messages=[
-    #             {
-    #                 "role": "user",
-    #                 "content": [
-    #                     {"type": "text", "text": prompt},
-    #                     {
-    #                         "type": "image_url",
-    #                         "image_url": {
-    #                             "url": f"data:image/jpeg;base64,{base64_image}"
-    #                         },
-    #                     },
-    #                 ],
-    #             }
-    #         ],
-    #         max_tokens=50,
-    #     )
-    #
-    #     message = image_description.choices[0].message.content
-    #     utils.speak(self.tts_engine, message)
-    #     self.tello.streamoff()
 

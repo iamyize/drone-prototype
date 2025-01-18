@@ -12,16 +12,25 @@ drone.origin_to_table():
     To fly to the table from the origin.
 
 drone.table_to_origin():
-    To return to the original position.
+    To return to the original position from the table.
+
+drone.origin_to_shelf():
+    To fly to the shelf from the origin.
+
+drone.shelf_to_origin():
+    To return to the original position from the shelf.
 
 drone.get_status():
     To describe the basic status of the drone, including battery level, flight time, and temperature. The drone will remain stationary during this command.
 
-drone.object_detection():
+drone.detect_objects():
     To detect objects using the camera attached to the drone. Use this for a command that requires you to detect unspecified objects. Do not use this if the command specifies an object.
 
 drone.find_item(item):
     To find a specific item using the camera attached to the drone. This function will check all locations. The parameter 'item' must be the specific item given by the command. Use this for any command that requires you to find a specific item.
+
+drone.recognise_text():
+    To read text using the camera attached to the drone. Use this for a command that requires you to read or recognise text.
 
 You will use the functions above to control the drone as I request.
 
