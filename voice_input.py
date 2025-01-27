@@ -40,6 +40,18 @@ audio_stream = pa.open(
 #   f.write(f'System: {file_contents} \n\nTemp: {TEMPERATURE} \n\n\n')
 #messages = [{"role": "system", "content": file_contents}]
 
+def rms(frame):
+    count = len(frame)/2
+    # short is 16 bit int
+    shorts = struct.unpack("%dh" % count, frame)
+
+    sum_squares = 0.0
+    for sample in shorts:
+        n = sample * (1.0/32768.0)
+        sum_squares += n*n
+    # compute the rms
+    rms = math.pow(sum_squares/count, 0.5)
+    return rms * 1000
 
 def transcribe_audio(frames):
     # ct = datetime.datetime.now()
@@ -74,6 +86,13 @@ def transcribe_audio(frames):
 
 def listen():
     frames = []
+    silence_timeout = 3
+    silence_threshold = 8
+
+    passed_initial_threshold = False
+
+    silence_timeout_started = False
+    silence_timeout_start_time = 0
 
     try:
         print('Waiting for first wake word to start recording...')
@@ -87,20 +106,30 @@ def listen():
                 print("First wake word detected! Recording until next wake word...")
                 break
 
-        while True:
-            data = audio_stream.read(porcupine.frame_length, exception_on_overflow=False)
+        while not passed_initial_threshold:
+            data = audio_stream.read(1024)
             frames.append(data)
-            pcm = struct.unpack_from("h" * porcupine.frame_length, data)
-            keyword_index = porcupine.process(pcm)
-            if keyword_index == 1:
-                # remove 2nd wake word frames, value is arbitrary for now
-                frames = frames[:-(fs//porcupine.frame_length)]
-                print("Second wake word detected! Stopping recording...")
-                break
+            if rms(data) > silence_threshold:
+                passed_initial_threshold = True
 
-        # Process the recording
-        # chatgpt_input = transcribe_audio(frames)
-        #messages.append({"role": "user", "content": chatgpt_input})
+        while True:
+            data = audio_stream.read(1024)
+            frames.append(data)
+
+            if rms(data) >= silence_threshold:
+                silence_timeout_started = False
+                continue
+
+            if rms(data) < silence_threshold and not silence_timeout_started:
+                silence_timeout_started = True
+                silence_timeout_start_time = time.time()
+                continue
+
+            if rms(data) < silence_threshold and silence_timeout_started and not time.time() - silence_timeout_start_time > silence_timeout:
+                continue
+
+            if rms(data) < silence_threshold and silence_timeout_started and time.time() - silence_timeout_start_time > silence_timeout:
+                break
 
     except KeyboardInterrupt:
         print("Stopping...")
