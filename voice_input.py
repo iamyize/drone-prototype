@@ -6,6 +6,8 @@ import simpleaudio as sa
 import whisper
 import utils
 import os
+import keyboard
+from pynput import keyboard
 '''
 Get input from the microphone and append it to the prompt (which will be used to generate code)
 '''
@@ -94,42 +96,67 @@ def listen():
     silence_timeout_started = False
     silence_timeout_start_time = 0
 
+    button_timeout = 30
+
     try:
-        print('Waiting for first wake word to start recording...')
+        print("Press the button once/'J' key when ready to give command, press the button twice/'L' key to end the program")
+
+        button_timeout_start_time = time.time()
+        while True:
+            event = keyboard.read_event()
+            if event.event_type == keyboard.KEY_DOWN:
+                if event.name == 'j':
+                    break
+                elif event.name == 'l':
+                    return None
+
+        time.sleep(1)
         audio_stream.start_stream()
-
-        while True:
-            data = audio_stream.read(porcupine.frame_length, exception_on_overflow=False)
-            pcm = struct.unpack_from("h" * porcupine.frame_length, data)
-            keyword_index = porcupine.process(pcm)
-            if keyword_index == 0:
-                print("First wake word detected! Recording until next wake word...")
-                break
-
-        while not passed_initial_threshold:
-            data = audio_stream.read(1024)
-            frames.append(data)
-            if rms(data) > silence_threshold:
-                passed_initial_threshold = True
+        print("Started recording. Press the button once/'J' key to stop recording")
 
         while True:
             data = audio_stream.read(1024)
             frames.append(data)
 
-            if rms(data) >= silence_threshold:
-                silence_timeout_started = False
-                continue
-
-            if rms(data) < silence_threshold and not silence_timeout_started:
-                silence_timeout_started = True
-                silence_timeout_start_time = time.time()
-                continue
-
-            if rms(data) < silence_threshold and silence_timeout_started and not time.time() - silence_timeout_start_time > silence_timeout:
-                continue
-
-            if rms(data) < silence_threshold and silence_timeout_started and time.time() - silence_timeout_start_time > silence_timeout:
+            if keyboard.is_pressed('j'):
+                print("Stopped recording")
                 break
+
+        # print('Waiting for first wake word to start recording...')
+        # audio_stream.start_stream()
+        #
+        # while True:
+        #     data = audio_stream.read(porcupine.frame_length, exception_on_overflow=False)
+        #     pcm = struct.unpack_from("h" * porcupine.frame_length, data)
+        #     keyword_index = porcupine.process(pcm)
+        #     if keyword_index == 0:
+        #         print("First wake word detected! Recording until next wake word...")
+        #         break
+        #
+        # while not passed_initial_threshold:
+        #     data = audio_stream.read(1024)
+        #     frames.append(data)
+        #     if rms(data) > silence_threshold:
+        #         passed_initial_threshold = True
+        #
+        # while True:
+        #     data = audio_stream.read(1024)
+        #     frames.append(data)
+        #
+        #     if rms(data) >= silence_threshold:
+        #         silence_timeout_started = False
+        #         continue
+        #
+        #     if rms(data) < silence_threshold and not silence_timeout_started:
+        #         silence_timeout_started = True
+        #         silence_timeout_start_time = time.time()
+        #         continue
+        #
+        #     if rms(data) < silence_threshold and silence_timeout_started and not time.time() - silence_timeout_start_time > silence_timeout:
+        #         continue
+        #
+        #     if rms(data) < silence_threshold and silence_timeout_started and time.time() - silence_timeout_start_time > silence_timeout:
+        #         break
 
     except KeyboardInterrupt:
         print("Stopping...")
