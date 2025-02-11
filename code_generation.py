@@ -66,20 +66,3 @@ def get_chatgpt_code(messages, api_key):
     except Exception as e:
         print(f"Other error occurred: {str(e)}")
         raise
-    
-
-# if __name__ == "__main__":
-    
-    # api_key = utils.load_file('api_key.txt')
-    # messages = utils.load_file('command_prompt.txt')
-
-    # # Prompt initial msg
-    # messages = [{"role": "developer", "content": messages}]
-    #
-    # # Insert actl msg here
-    # gpt_input = "here"
-    # messages.append({"role": "user", "content": gpt_input})
-
-    # get_chatgpt_code(messages, api_key)
-    # print("Generation Done!")
-
