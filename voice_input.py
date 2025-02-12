@@ -7,6 +7,7 @@ import whisper
 import utils
 import os
 import keyboard
+from playsound import playsound
 # from pynput import keyboard
 '''
 Get input from the microphone and append it to the prompt (which will be used to generate code)
@@ -127,6 +128,7 @@ def listen():
 
         time.sleep(0.5)
         audio_stream.start_stream()
+        playsound('./resources/sounds/command_start_beep.wav')
         print("Started recording. Press the button once/'J' key to stop recording")
 
         keyboard.on_press_key("j", button_end_command, suppress=True)
