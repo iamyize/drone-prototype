@@ -37,11 +37,6 @@ audio_stream = pa.open(
                 frames_per_buffer=porcupine.frame_length,
                 input_device_index=mic_num)
 
-#with open('command_prompt.txt', 'r') as f:
-  #file_contents = f.read()
-# with open(LOG_FILE_PATH, 'w') as f:
-#   f.write(f'System: {file_contents} \n\nTemp: {TEMPERATURE} \n\n\n')
-#messages = [{"role": "system", "content": file_contents}]
 
 def rms(frame):
     count = len(frame)/2
@@ -124,6 +119,10 @@ def listen():
         keyboard.unhook_all()
 
         if not start_command:
+            if audio_stream.is_active():
+                audio_stream.stop_stream()
+            audio_stream.close()
+            pa.terminate()
             return None
 
         time.sleep(0.5)
@@ -142,11 +141,5 @@ def listen():
 
     except KeyboardInterrupt:
         print("Stopping...")
-    finally:
-        if audio_stream.is_active():
-            audio_stream.stop_stream()
-        audio_stream.close()
-        pa.terminate()
-        porcupine.delete()
 
     return frames
