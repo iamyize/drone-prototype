@@ -1,5 +1,8 @@
+import time
+
 import pyttsx3
 import simpleaudio as sa
+import keyboard
 
 
 def load_file(file_path):
@@ -20,3 +23,52 @@ def init_tts_engine():
 def speak(engine, message):
     engine.say(message)
     engine.runAndWait()
+
+
+def start_command_or_exit(timeout):
+    result = None
+
+    def button_start_command(e):
+        nonlocal result
+        result = True
+
+    def button_end_program(e):
+        nonlocal result
+        result = False
+
+    keyboard.on_press_key("j", button_start_command, suppress=True)
+    keyboard.on_press_key("l", button_end_program, suppress=True)
+
+    button_timeout_start_time = time.time()
+
+    while time.time() - button_timeout_start_time < timeout and result is None:
+        time.sleep(0.01)
+
+    keyboard.unhook_all()
+
+    if result is not None:
+        return result
+    else:
+        return False
+
+
+def end_command():
+    end_command = [False]
+
+    def button_end_command(e):
+        end_command[0] = True
+        keyboard.unhook_all()
+
+    keyboard.on_press_key("j", button_end_command, suppress=True)
+
+    return end_command
+
+
+def execute_or_repeat():
+    while True:
+        key = keyboard.read_key(suppress=True)
+
+        if key == 'j':
+            return True
+        elif key == 'l':
+            return False

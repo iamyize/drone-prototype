@@ -3,6 +3,7 @@ import sys
 import voice_input
 import code_generation
 import utils
+import keyboard
 from function_factory import TelloMovement
 import tello
 
@@ -24,18 +25,20 @@ if __name__ == '__main__':
         with open('code.txt', 'r') as f:
             code = f.read()
 
-        flag = input("To exit, enter 0. To execute code, enter 1.")
+        print("Press the button once/'J' key to execute the code, press the button twice/'L' key to issue the command again.")
 
-        if flag == '0':
-            sys.exit()
+        execute_code = utils.execute_or_repeat()
 
-        elif flag == '1':
+        if execute_code:
             try:
-                # drone = TelloMovement(tello.Tello())
-                # drone.connect()
-                # exec(code, globals())
-                print("drone do stuff here")
+                drone = TelloMovement(tello.Tello())
+                drone.connect()
+                exec(code, globals())
 
             except Exception as e:
                 print(f"An error occurred: {str(e)}")
+        else:
+            continue
+
+
 

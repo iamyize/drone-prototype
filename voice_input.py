@@ -74,7 +74,7 @@ def transcribe_audio(frames):
     result = model.transcribe(RECORDING_FILE_PATH, fp16=False)["text"]
     elapsed_time = time.time() - begin_time
     print("Transcription Time: " + str(elapsed_time))
-    print("Text: " + result)
+    print("Text:" + result)
 
     with open('command_prompt.txt', 'w') as f:
         f.write(result)
@@ -87,36 +87,10 @@ def listen():
 
     button_timeout = 30
 
-    # Flags
-    start_command = False
-    end_program = False
-
-    end_command = False
-
-    def button_start_command(e):
-        nonlocal start_command
-        start_command = True
-
-    def button_end_program(e):
-        nonlocal end_program
-        end_program = True
-
-    def button_end_command(e):
-        nonlocal end_command
-        end_command = True
-
     try:
-        print("Press the button once/'J' key when ready to give command, press the button twice/'L' key to end the program")
+        print("Press the button once/'J' key when ready to give command, press the button twice/'L' key to end the program.")
 
-        keyboard.on_press_key("j", button_start_command, suppress=True)
-        keyboard.on_press_key("l", button_end_program, suppress=True)
-
-        button_timeout_start_time = time.time()
-
-        while time.time() - button_timeout_start_time < button_timeout and not start_command and not end_program:
-            time.sleep(0.01)
-
-        keyboard.unhook_all()
+        start_command = utils.start_command_or_exit(timeout=button_timeout)
 
         if not start_command:
             if audio_stream.is_active():
@@ -128,16 +102,14 @@ def listen():
         time.sleep(0.5)
         audio_stream.start_stream()
         playsound('./resources/sounds/command_start_beep.wav')
-        print("Started recording. Press the button once/'J' key to stop recording")
+        print("Started recording. Press the button once/'J' key to stop recording.")
 
-        keyboard.on_press_key("j", button_end_command, suppress=True)
+        end_command = utils.end_command()
 
-        while not end_command:
+        while not end_command[0]:
             data = audio_stream.read(1024)
             frames.append(data)
             time.sleep(0.01)
-
-        keyboard.unhook_all()
 
     except KeyboardInterrupt:
         print("Stopping...")
