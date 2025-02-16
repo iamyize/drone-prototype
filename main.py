@@ -20,7 +20,7 @@ if __name__ == '__main__':
         api_key = utils.load_file('api_key.txt')
         messages = utils.load_file('command_prompt.txt')
         code_generation.get_chatgpt_code(messages, api_key)
-        print("Generation Done!")
+        # print("Generation Done!")
 
         with open('code.txt', 'r') as f:
             code = f.read()

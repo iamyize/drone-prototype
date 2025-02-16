@@ -3,6 +3,7 @@ import time
 import pyttsx3
 import simpleaudio as sa
 import keyboard
+import importlib
 
 
 def load_file(file_path):
@@ -20,9 +21,11 @@ def init_tts_engine():
     return engine
 
 
-def speak(engine, message):
+def speak(message):
+    engine = pyttsx3.init()
     engine.say(message)
     engine.runAndWait()
+    del engine
 
 
 def start_command_or_exit(timeout):
