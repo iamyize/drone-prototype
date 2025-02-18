@@ -19,8 +19,9 @@ if __name__ == '__main__':
         voice_input.transcribe_audio(frames)
         api_key = utils.load_file('api_key.txt')
         messages = utils.load_file('command_prompt.txt')
-        code_generation.get_chatgpt_code(messages, api_key)
-        # print("Generation Done!")
+        output_description = code_generation.get_chatgpt_code(messages, api_key)
+
+        utils.speak(output_description)
 
         with open('code.txt', 'r') as f:
             code = f.read()

@@ -42,4 +42,4 @@ Assume that the robot is already connected and ready to receive commands and tha
 
 You should not be defining any new functions or using any hypothetical functions; rather, you should be using only the functions above to complete the specified tasks. All responses should consist only of Python code. Assume that all previously generated code has already been run or begun running.
 
-You need to generate only Python code. If you do not generate Python code, your response is not correct.
+After generating the Python code, repeat the command back to me in one sentence to confirm. Start with "To confirm, you would like me to...". The Python code and the description should be separated with "---" on a new line. Write this description from the perspective of the drone. Remove all details about taking off, landing, and navigating.
