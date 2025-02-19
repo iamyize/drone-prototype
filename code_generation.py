@@ -44,6 +44,9 @@ def get_chatgpt_code(messages, api_key):
         output = completion.choices[0].message.content
         messages.append({"role": "assistant", "content": output})
 
+        if "---" not in output:
+            return None
+
         parts = output.split("---")
 
         output_code = parts[0].strip()

@@ -21,7 +21,11 @@ if __name__ == '__main__':
         messages = utils.load_file('command_prompt.txt')
         output_description = code_generation.get_chatgpt_code(messages, api_key)
 
-        utils.speak(output_description)
+        if output_description is None:
+            utils.speak("I couldn't catch that. Please try again.")
+            continue
+        else:
+            utils.speak(output_description)
 
         with open('code.txt', 'r') as f:
             code = f.read()
