@@ -9,14 +9,14 @@ from ultralytics import YOLO
 
 import openai
 import cv2
-import pathlib as Path
+from concurrent.futures import ThreadPoolExecutor
 
 
 class TelloMovement:
     def __init__(self, tello: Tello):
         api_key = utils.load_file('api_key.txt')
         self.tello = tello
-        self.tts_engine = utils.init_tts_engine()
+        # self.tts_engine = utils.init_tts_engine()
         self.client = openai.OpenAI(api_key=api_key)
         self.locations = ["table", "shelf"]
 
@@ -24,55 +24,101 @@ class TelloMovement:
         self.tello.connect()
         message = f"Connected. Battery at {self.tello.get_battery()}%."
         print(message)
-        utils.speak(self.tts_engine, message)
+        utils.speak(message)
 
     def move_to_position(self, x: int, y: int, z: int, speed: int):
         message = f"I am moving."
-        utils.speak(self.tts_engine, message)
-        self.tello.go_xyz_speed(x, y, z, speed)
+
+        with ThreadPoolExecutor(max_workers=2) as executor:
+            future = executor.submit(utils.speak, message)
+
+            self.tello.go_xyz_speed(x, y, z, speed)
+        try:
+            future.result()
+        except Exception as e:
+            print(e)
 
     def origin_to_table(self):
         message = f"I am moving to the table."
-        utils.speak(self.tts_engine, message)
-        self.tello.go_xyz_speed(60, 0, -10, 25)
+
+        with ThreadPoolExecutor(max_workers=2) as executor:
+            future = executor.submit(utils.speak, message)
+
+            self.tello.go_xyz_speed(60, 0, -10, 25)
+        try:
+            future.result()
+        except Exception as e:
+            print(e)
+
 
     def table_to_origin(self):
         message = f"I am moving back."
-        utils.speak(self.tts_engine, message)
-        self.tello.go_xyz_speed(-60, 0, 0, 25)
+
+        with ThreadPoolExecutor(max_workers=2) as executor:
+            future = executor.submit(utils.speak, message)
+
+            self.tello.go_xyz_speed(-60, 0, 0, 25)
+        try:
+            future.result()
+        except Exception as e:
+            print(e)
+
 
     def table_to_shelf(self):
         message = f"I am moving to the shelf."
-        utils.speak(self.tts_engine, message)
-        self.tello.go_xyz_speed(70, 0, 30, 25)
-        self.tello.rotate_counter_clockwise(45)
+
+        with ThreadPoolExecutor(max_workers=2) as executor:
+            future = executor.submit(utils.speak, message)
+
+            self.tello.go_xyz_speed(70, 0, 30, 25)
+            self.tello.rotate_counter_clockwise(45)
+        try:
+            future.result()
+        except Exception as e:
+            print(e)
+
 
     # def search_the_room(self):
     #     message = f"I am scanning the room."
     #     utils.speak(self.tts_engine, message)
     #     self.tello.go_xyz_speed(0, 0, 0, 25)
 
+
     def origin_to_shelf(self):
         message = f"I am moving to the shelf."
-        utils.speak(self.tts_engine, message)
-        self.tello.go_xyz_speed(130, 0, 0, 25)
-        self.tello.rotate_counter_clockwise(45)
+
+        with ThreadPoolExecutor(max_workers=2) as executor:
+            future = executor.submit(utils.speak, message)
+
+            self.tello.go_xyz_speed(130, 0, 0, 25)
+            self.tello.rotate_counter_clockwise(45)
+        try:
+            future.result()
+        except Exception as e:
+            print(e)
 
     def shelf_to_origin(self):
         message = f"I am moving back."
-        utils.speak(self.tts_engine, message)
-        self.tello.rotate_clockwise(45)
-        self.tello.go_xyz_speed(-130, 0, 0, 25)
+
+        with ThreadPoolExecutor(max_workers=2) as executor:
+            future = executor.submit(utils.speak, message)
+
+            self.tello.rotate_clockwise(45)
+            self.tello.go_xyz_speed(-130, 0, 0, 25)
+        try:
+            future.result()
+        except Exception as e:
+            print(e)
 
     def take_off(self):
         message = f"I am taking off."
-        utils.speak(self.tts_engine, message)
+        utils.speak(message)
         self.tello.takeoff()
         time.sleep(1.5)
 
     def land(self):
         message = f"I am landing."
-        utils.speak(self.tts_engine, message)
+        utils.speak(message)
         self.tello.land()
 
     # query_xxx gives different formats which cannot just be cast to int, e.g. time->0s, temp->80-82C
@@ -88,7 +134,7 @@ class TelloMovement:
             f"I've been flying for {flight_time} seconds, "
             f"and the temperature is {temperature} degrees celsius."
         )
-        utils.speak(self.tts_engine, message)
+        utils.speak(message)
 
     def capture_image(self):
         print("capturing image")
@@ -116,7 +162,7 @@ class TelloMovement:
 
     def detect_objects(self):
         message = f"I am detecting objects"
-        utils.speak(self.tts_engine, message)
+        utils.speak(message)
 
         image_path = self.capture_image()
         print("Detecting objects")
@@ -147,7 +193,7 @@ class TelloMovement:
 
         message = image_description.choices[0].message.content
         self.tello.send_keepalive()
-        utils.speak(self.tts_engine, message)
+        utils.speak(message)
         print(message)
 
     def recognise_text(self):
@@ -180,11 +226,11 @@ class TelloMovement:
         message = image_description.choices[0].message.content
         self.tello.send_keepalive()
         print(message)
-        utils.speak(self.tts_engine, message)
+        utils.speak(message)
 
     def check_item(self, item, image_paths):
         message = f"I am looking for {item}"
-        utils.speak(self.tts_engine, message)
+        utils.speak(message)
 
         print(f"Checking for {item}")
         current_time = time.time()
@@ -229,7 +275,7 @@ class TelloMovement:
         print(message)
         elapsed_time = time.time() - current_time
         print(elapsed_time)
-        utils.speak(self.tts_engine, message)
+        utils.speak(message)
 
     def find_item(self, item):
         image_paths = []
@@ -237,16 +283,18 @@ class TelloMovement:
         image_paths.append(self.capture_image())
         self.table_to_shelf()
         image_paths.append(self.capture_image())
-        self.tello.rotate_counter_clockwise(315)
-        self.tello.go_xyz_speed(-130, 0, 0, 25)
-        self.check_item(item, image_paths)
 
-    def check_object_yolo(self, image_path):
-        model = YOLO("yolo11n.pt") # yolo11
-        current_time = time.time()
-        result = model(image_path)
-        elapsed_time = time.time() - current_time
-        print(f"detection time: {elapsed_time}")
-        message = f"I have detected {result} in the image."
-        utils.speak(self.tts_engine, message)
+        with ThreadPoolExecutor(max_workers=2) as executor:
+            future = executor.submit(self.check_item, item, image_paths)
+
+            self.tello.rotate_counter_clockwise(315)
+            self.tello.go_xyz_speed(-130, 0, 0, 25)
+        try:
+            future.result()
+        except Exception as e:
+            print(e)
+
+        # self.tello.rotate_counter_clockwise(315)
+        # self.tello.go_xyz_speed(-130, 0, 0, 25)
+        # self.check_item(item, image_paths)
 

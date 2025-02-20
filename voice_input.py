@@ -6,6 +6,9 @@ import simpleaudio as sa
 import whisper
 import utils
 import os
+import keyboard
+from playsound import playsound
+# from pynput import keyboard
 '''
 Get input from the microphone and append it to the prompt (which will be used to generate code)
 '''
@@ -34,12 +37,19 @@ audio_stream = pa.open(
                 frames_per_buffer=porcupine.frame_length,
                 input_device_index=mic_num)
 
-#with open('command_prompt.txt', 'r') as f:
-  #file_contents = f.read()
-# with open(LOG_FILE_PATH, 'w') as f:
-#   f.write(f'System: {file_contents} \n\nTemp: {TEMPERATURE} \n\n\n')
-#messages = [{"role": "system", "content": file_contents}]
 
+def rms(frame):
+    count = len(frame)/2
+    # short is 16 bit int
+    shorts = struct.unpack("%dh" % count, frame)
+
+    sum_squares = 0.0
+    for sample in shorts:
+        n = sample * (1.0/32768.0)
+        sum_squares += n*n
+    # compute the rms
+    rms = math.pow(sum_squares/count, 0.5)
+    return rms * 1000
 
 def transcribe_audio(frames):
     # ct = datetime.datetime.now()
@@ -64,7 +74,7 @@ def transcribe_audio(frames):
     result = model.transcribe(RECORDING_FILE_PATH, fp16=False)["text"]
     elapsed_time = time.time() - begin_time
     print("Transcription Time: " + str(elapsed_time))
-    print("Text: " + result)
+    print("Text:" + result)
 
     with open('command_prompt.txt', 'w') as f:
         f.write(result)
@@ -75,78 +85,33 @@ def transcribe_audio(frames):
 def listen():
     frames = []
 
+    button_timeout = 30
+
     try:
-        print('Waiting for first wake word to start recording...')
+        print("Press the button once/'J' key when ready to give command, press the button twice/'L' key to end the program.")
+
+        start_command = utils.start_command_or_exit(timeout=button_timeout)
+
+        if not start_command:
+            if audio_stream.is_active():
+                audio_stream.stop_stream()
+            audio_stream.close()
+            pa.terminate()
+            return None
+
+        time.sleep(0.5)
         audio_stream.start_stream()
+        playsound('./resources/sounds/command_start_beep.wav')
+        print("Started recording. Press the button once/'J' key to stop recording.")
 
-        while True:
-            data = audio_stream.read(porcupine.frame_length, exception_on_overflow=False)
-            pcm = struct.unpack_from("h" * porcupine.frame_length, data)
-            keyword_index = porcupine.process(pcm)
-            if keyword_index == 0:
-                print("First wake word detected! Recording until next wake word...")
-                break
+        end_command = utils.end_command()
 
-        while True:
-            data = audio_stream.read(porcupine.frame_length, exception_on_overflow=False)
+        while not end_command[0]:
+            data = audio_stream.read(1024)
             frames.append(data)
-            pcm = struct.unpack_from("h" * porcupine.frame_length, data)
-            keyword_index = porcupine.process(pcm)
-            if keyword_index == 1:
-                # remove 2nd wake word frames, value is arbitrary for now
-                frames = frames[:-(fs//porcupine.frame_length)]
-                print("Second wake word detected! Stopping recording...")
-                break
-
-        # Process the recording
-        # chatgpt_input = transcribe_audio(frames)
-        #messages.append({"role": "user", "content": chatgpt_input})
+            time.sleep(0.01)
 
     except KeyboardInterrupt:
         print("Stopping...")
-    finally:
-        if audio_stream.is_active():
-            audio_stream.stop_stream()
-        audio_stream.close()
-        pa.terminate()
-        porcupine.delete()
 
     return frames
-
-# if __name__ == "__main__":
-#     try:
-#         print('Waiting for first wake word to start recording...')
-#         audio_stream.start_stream()
-#         frames = []
-#
-#         while True:
-#             data = audio_stream.read(porcupine.frame_length, exception_on_overflow=False)
-#             pcm = struct.unpack_from("h" * porcupine.frame_length, data)
-#             keyword_index = porcupine.process(pcm)
-#             if keyword_index == 0:
-#                 print("First wake word detected! Recording until next wake word...")
-#                 break
-#
-#         while True:
-#             data = audio_stream.read(porcupine.frame_length, exception_on_overflow=False)
-#             frames.append(data)
-#             pcm = struct.unpack_from("h" * porcupine.frame_length, data)
-#             keyword_index = porcupine.process(pcm)
-#             if keyword_index == 1:
-#                 # remove 2nd wake word frames, value is arbitrary for now
-#                 frames = frames[:-(fs//porcupine.frame_length)]
-#                 print("Second wake word detected! Stopping recording...")
-#                 break
-#
-#         # Process the recording
-#         chatgpt_input = transcribe_audio(frames)
-#         #messages.append({"role": "user", "content": chatgpt_input})
-#
-#     except KeyboardInterrupt:
-#         print("Stopping...")
-#     finally:
-#         if audio_stream.is_active():
-#             audio_stream.stop_stream()
-#         audio_stream.close()
-#         pa.terminate()
-#         porcupine.delete()
