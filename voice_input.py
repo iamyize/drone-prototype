@@ -58,7 +58,7 @@ def transcribe_audio(frames):
     RECORDING_FILE_PATH = f"audios/{ct}.wav"
     print('Finished recording.')
 
-    begin_time = time.time()
+
 
     # Save the recorded data as a WAV file
     os.makedirs(os.path.dirname(RECORDING_FILE_PATH), exist_ok=True)
@@ -71,6 +71,7 @@ def transcribe_audio(frames):
 
     # Transcribe the audio
     model = whisper.load_model("base.en")
+    begin_time = time.time()
     result = model.transcribe(RECORDING_FILE_PATH, fp16=False)["text"]
     elapsed_time = time.time() - begin_time
     print("Transcription Time: " + str(elapsed_time))

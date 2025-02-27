@@ -182,7 +182,8 @@ class TelloMovement:
                         {
                             "type": "image_url",
                             "image_url": {
-                                "url": f"data:image/jpeg;base64,{base64_image}"
+                                "url": f"data:image/jpeg;base64,{base64_image}",
+                                "detail": "low"
                             },
                         },
                     ],
@@ -204,6 +205,7 @@ class TelloMovement:
             base64_image = base64.b64encode(image_file.read()).decode('utf-8')
 
         prompt = "Read the text in the image."
+
         image_description = self.client.chat.completions.create(
             model="gpt-4o",
             messages=[
@@ -214,7 +216,8 @@ class TelloMovement:
                         {
                             "type": "image_url",
                             "image_url": {
-                                "url": f"data:image/jpeg;base64,{base64_image}"
+                                "url": f"data:image/jpeg;base64,{base64_image}",
+                                "details": "low"
                             },
                         },
                     ],

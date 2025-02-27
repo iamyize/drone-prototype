@@ -6,7 +6,16 @@ import utils
 import keyboard
 from function_factory import TelloMovement
 import tello
+import pprint
 
+api_key = utils.load_file('api_key.txt')
+system_prompt = utils.load_file('original_prompt.txt')
+messages = [
+    {
+        "role": "system",
+        "content": system_prompt
+    }
+]
 
 if __name__ == '__main__':
     while True:
@@ -14,12 +23,11 @@ if __name__ == '__main__':
 
         if frames is None:
             print("Program ended by user.")
+            pprint.pprint(messages)
             sys.exit()
 
-        voice_input.transcribe_audio(frames)
-        api_key = utils.load_file('api_key.txt')
-        messages = utils.load_file('command_prompt.txt')
-        output_description = code_generation.get_chatgpt_code(messages, api_key)
+        command = voice_input.transcribe_audio(frames)
+        output_description = code_generation.get_chatgpt_code(messages, command, api_key)
 
         if output_description is None:
             utils.speak("I couldn't catch that. Please try again.")

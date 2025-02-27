@@ -12,26 +12,15 @@ ct = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     
 TEMPERATURE = 0.1
 LOG_FILE_PATH = f"logs/{participantid}_{ct}.txt"
+client = openai.OpenAI(api_key=utils.load_file('api_key.txt'))
 
 
-def get_chatgpt_code(messages, api_key):
+def get_chatgpt_code(messages, command, api_key):
     try:
-        begintime = time.time()
-        client = openai.OpenAI(api_key=api_key)
-
-        developer_prompt = utils.load_file("original_prompt.txt")
+        begin_time = time.time()
         
-        if isinstance(messages, str):
-            messages = [
-                {
-                    "role": "developer",
-                    "content": [{"type": "text", "text": developer_prompt}]
-                },
-                {
-                    "role": "user",
-                    "content": [{"type": "text", "text": messages}]
-                }
-            ]
+        if isinstance(command, str):
+            messages.append({"role": "user", "content": command})
         
         # send request 
         completion = client.chat.completions.create(
@@ -40,7 +29,7 @@ def get_chatgpt_code(messages, api_key):
             messages=messages
         )
     
-        elapsedtime = time.time() - begintime
+        elapsed_time = time.time() - begin_time
         output = completion.choices[0].message.content
         messages.append({"role": "assistant", "content": output})
 
@@ -65,8 +54,8 @@ def get_chatgpt_code(messages, api_key):
 
         os.makedirs(os.path.dirname(LOG_FILE_PATH), exist_ok=True)
         with open(LOG_FILE_PATH, 'a') as f:
-            f.write(f'ChatGPT Response Time: {elapsedtime}\nChatGPT: {output_code}\n\n\n')
-        print("ChatGPT Response Time: " + str(elapsedtime))
+            f.write(f'ChatGPT Response Time: {elapsed_time}\nChatGPT: {output_code}\n\n\n')
+        print("ChatGPT Response Time: " + str(elapsed_time))
 
         return output_description
    
