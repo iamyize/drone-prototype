@@ -16,6 +16,7 @@ messages = [
         "content": system_prompt
     }
 ]
+drone = TelloMovement(tello.Tello())
 
 if __name__ == '__main__':
     while True:
@@ -27,7 +28,7 @@ if __name__ == '__main__':
             sys.exit()
 
         command = voice_input.transcribe_audio(frames)
-        output_description = code_generation.get_chatgpt_code(messages, command, api_key)
+        output_description = code_generation.get_chatgpt_code(messages, command)
 
         if output_description is None:
             utils.speak("I couldn't catch that. Please try again.")
@@ -35,8 +36,7 @@ if __name__ == '__main__':
         else:
             utils.speak(output_description)
 
-        with open('code.txt', 'r') as f:
-            code = f.read()
+        code = utils.load_file('code.txt')
 
         print("Press the button once/'J' key to execute the code, press the button twice/'L' key to issue the command again.")
 
@@ -44,7 +44,6 @@ if __name__ == '__main__':
 
         if execute_code:
             try:
-                drone = TelloMovement(tello.Tello())
                 drone.connect()
                 exec(code, globals())
 

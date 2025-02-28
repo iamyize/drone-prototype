@@ -19,6 +19,7 @@ class TelloMovement:
         # self.tts_engine = utils.init_tts_engine()
         self.client = openai.OpenAI(api_key=api_key)
         self.locations = ["table", "shelf"]
+        self.gpt_messages = []
 
     def connect(self):
         self.tello.connect()
@@ -50,7 +51,6 @@ class TelloMovement:
         except Exception as e:
             print(e)
 
-
     def table_to_origin(self):
         message = f"I am moving back."
 
@@ -62,7 +62,6 @@ class TelloMovement:
             future.result()
         except Exception as e:
             print(e)
-
 
     def table_to_shelf(self):
         message = f"I am moving to the shelf."
@@ -76,13 +75,6 @@ class TelloMovement:
             future.result()
         except Exception as e:
             print(e)
-
-
-    # def search_the_room(self):
-    #     message = f"I am scanning the room."
-    #     utils.speak(self.tts_engine, message)
-    #     self.tello.go_xyz_speed(0, 0, 0, 25)
-
 
     def origin_to_shelf(self):
         message = f"I am moving to the shelf."
@@ -172,30 +164,33 @@ class TelloMovement:
             base64_image = base64.b64encode(image_file.read()).decode('utf-8')
 
         prompt = "List the 3 most important objects in the image. Keep it brief but in complete sentences."
+        message = {
+            "role": "user",
+            "content": [
+                {"type": "text", "text": prompt},
+                {
+                    "type": "image_url",
+                    "image_url": {
+                        "url": f"data:image/jpeg;base64,{base64_image}",
+                        "detail": "low"
+                    },
+                },
+            ],
+        }
+        self.gpt_messages.append(message)
+
         image_description = self.client.chat.completions.create(
             model="gpt-4o",
-            messages=[
-                {
-                    "role": "user",
-                    "content": [
-                        {"type": "text", "text": prompt},
-                        {
-                            "type": "image_url",
-                            "image_url": {
-                                "url": f"data:image/jpeg;base64,{base64_image}",
-                                "detail": "low"
-                            },
-                        },
-                    ],
-                }
-            ],
+            messages=[message],
             max_tokens=50,
         )
 
-        message = image_description.choices[0].message.content
+        response = image_description.choices[0].message.content
+        self.gpt_messages.append({"role": "assistant", "content": response})
+
         self.tello.send_keepalive()
-        utils.speak(message)
-        print(message)
+        print(response)
+        utils.speak(response)
 
     def recognise_text(self):
         image_path = self.capture_image()
@@ -205,31 +200,33 @@ class TelloMovement:
             base64_image = base64.b64encode(image_file.read()).decode('utf-8')
 
         prompt = "Read the text in the image."
+        message = {
+            "role": "user",
+            "content": [
+                {"type": "text", "text": prompt},
+                {
+                    "type": "image_url",
+                    "image_url": {
+                        "url": f"data:image/jpeg;base64,{base64_image}",
+                        "details": "low"
+                    },
+                },
+            ],
+        }
+        self.gpt_messages.append(message)
 
         image_description = self.client.chat.completions.create(
             model="gpt-4o",
-            messages=[
-                {
-                    "role": "user",
-                    "content": [
-                        {"type": "text", "text": prompt},
-                        {
-                            "type": "image_url",
-                            "image_url": {
-                                "url": f"data:image/jpeg;base64,{base64_image}",
-                                "details": "low"
-                            },
-                        },
-                    ],
-                }
-            ],
+            messages=[message],
             max_tokens=50,
         )
 
-        message = image_description.choices[0].message.content
+        response = image_description.choices[0].message.content
+        self.gpt_messages.append({"role": "assistant", "content": response})
+
         self.tello.send_keepalive()
-        print(message)
-        utils.speak(message)
+        print(response)
+        utils.speak(response)
 
     def check_item(self, item, image_paths):
         message = f"I am looking for {item}"
@@ -247,38 +244,40 @@ class TelloMovement:
                   f"If none of the images contain the {item}, give 0."
                   f"Do not generate any other text.")
 
-        messages = [
-            {
+        message = {
                 "role": "user",
                 "content": [
                     {"type": "text", "text": prompt}
                 ]
             }
-        ]
 
         for base64_image in base64_images:
-            messages[0]["content"].append({
+            message["content"].append({
                 "type": "image_url",
                 "image_url": {
                     "url": f"data:image/jpeg;base64,{base64_image}"
                 }
             })
 
+        self.gpt_messages.append(message)
+
         image_description = self.client.chat.completions.create(
             model="gpt-4o",
-            messages=messages,
+            messages=[message],
             max_tokens=300,
         )
 
-        message = image_description.choices[0].message.content
-        if int(message) == 0:
-            message = f"The {item} cannot be found."
+        response = image_description.choices[0].message.content
+        self.gpt_messages.append({"role": "assistant", "content": response})
+
+        if int(response) == 0:
+            response = f"The {item} cannot be found."
         else:
-            message = f"The {item} is at the {self.locations[int(message) - 1]}."
-        print(message)
+            response = f"The {item} is at the {self.locations[int(response) - 1]}."
+        print(response)
         elapsed_time = time.time() - current_time
         print(elapsed_time)
-        utils.speak(message)
+        utils.speak(response)
 
     def find_item(self, item):
         image_paths = []
@@ -297,7 +296,25 @@ class TelloMovement:
         except Exception as e:
             print(e)
 
-        # self.tello.rotate_counter_clockwise(315)
-        # self.tello.go_xyz_speed(-130, 0, 0, 25)
-        # self.check_item(item, image_paths)
+    def ask(self, command):
+        message = {
+            "role": "user",
+            "content": [
+                {"type": "text", "text": command},
+            ],
+        }
+        self.gpt_messages.append(message)
+
+        image_description = self.client.chat.completions.create(
+            model="gpt-4o",
+            messages=self.gpt_messages,
+            max_tokens=300,
+        )
+
+        response = image_description.choices[0].message.content
+        self.gpt_messages.append({"role": "assistant", "content": response})
+
+        print(response)
+        utils.speak(response)
+
 

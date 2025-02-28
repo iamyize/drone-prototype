@@ -15,7 +15,7 @@ LOG_FILE_PATH = f"logs/{participantid}_{ct}.txt"
 client = openai.OpenAI(api_key=utils.load_file('api_key.txt'))
 
 
-def get_chatgpt_code(messages, command, api_key):
+def get_chatgpt_code(messages, command):
     try:
         begin_time = time.time()
         
