@@ -190,6 +190,8 @@ class TelloMovement:
         self.gpt_messages.append({"role": "assistant", "content": response})
 
         self.tello.send_keepalive()
+        with open(self.log_file_path, 'a') as f:
+            f.write(f'Task: Detect objects\nUser: {prompt}, {image_path}\nChatGPT: {response}')
         print(response)
         utils.speak(response)
 
@@ -226,6 +228,8 @@ class TelloMovement:
         self.gpt_messages.append({"role": "assistant", "content": response})
 
         self.tello.send_keepalive()
+        with open(self.log_file_path, 'a') as f:
+            f.write(f'Task: Recognise text\nUser: {prompt}, {image_path}\nChatGPT: {response}')
         print(response)
         utils.speak(response)
 
@@ -278,6 +282,8 @@ class TelloMovement:
         print(response)
         elapsed_time = time.time() - current_time
         print(elapsed_time)
+        with open(self.log_file_path, 'a') as f:
+            f.write(f'Task: Find item\nUser: {prompt}, {image_paths}\nChatGPT: {response}')
         utils.speak(response)
 
     def find_item(self, item):
@@ -314,6 +320,9 @@ class TelloMovement:
 
         response = image_description.choices[0].message.content
         self.gpt_messages.append({"role": "assistant", "content": response})
+
+        with open(self.log_file_path, 'a') as f:
+            f.write(f'Task: Detect objects\nUser: {command}\nChatGPT: {response}')
 
         print(response)
         utils.speak(response)
