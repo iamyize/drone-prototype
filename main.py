@@ -7,6 +7,7 @@ import keyboard
 from function_factory import TelloMovement
 import tello
 import pprint
+import datetime
 
 api_key = utils.load_file('api_key.txt')
 system_prompt = utils.load_file('original_prompt.txt')
@@ -16,7 +17,11 @@ messages = [
         "content": system_prompt
     }
 ]
-drone = TelloMovement(tello.Tello())
+
+participant_id = 1
+ct = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+LOG_FILE_PATH = f"logs/{participant_id}_{ct}.txt"
+drone = TelloMovement(tello.Tello(), LOG_FILE_PATH)
 
 if __name__ == '__main__':
     while True:
@@ -28,7 +33,7 @@ if __name__ == '__main__':
             sys.exit()
 
         command = voice_input.transcribe_audio(frames)
-        output_description = code_generation.get_chatgpt_code(messages, command)
+        output_description = code_generation.get_chatgpt_code(messages, command, log_file_path=LOG_FILE_PATH)
 
         if output_description is None:
             utils.speak("I couldn't catch that. Please try again.")

@@ -13,13 +13,14 @@ from concurrent.futures import ThreadPoolExecutor
 
 
 class TelloMovement:
-    def __init__(self, tello: Tello):
+    def __init__(self, tello: Tello, log_file_path):
         api_key = utils.load_file('api_key.txt')
         self.tello = tello
         # self.tts_engine = utils.init_tts_engine()
         self.client = openai.OpenAI(api_key=api_key)
         self.locations = ["table", "shelf"]
         self.gpt_messages = []
+        self.log_file_path = log_file_path
 
     def connect(self):
         self.tello.connect()
