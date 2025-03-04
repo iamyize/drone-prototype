@@ -5,11 +5,15 @@ Code for the paper (still under review)
 
 ## Hardware and Software: 
 - Tello Drone (https://www.ryzerobotics.com/tello)
-- Windows Laptop (Mac probably works just fine, but we recommend Windows as some of the packages we used are Windows exclusive.)
+- Windows Laptop (Mac probably works just fine, but we recommend Windows.)
 - WiFi Adapter
 - Noise Cancelling Headphone with a mic
 - Python version < 3.13 (We run it in 3.9.13) 
 
+## Environment Set-up: 
+Download Microsoft C++ Build Tools (https://visualstudio.microsoft.com/visual-cpp-build-tools/) 
+
+=======
 ## Environment Set-up:  
 Clone repo, create a new environment, and download the dependencies: 
 ```
@@ -18,3 +22,17 @@ cd xxx
 [create a new environment]
 pip install -r requirements.txt
 ```
+Check if ffmpeg (which is required to handle audio) exist:
+```
+ffmpeg -version
+```
+If the above command is not recognized, then this package is probably missing. To install ffmpeg, the easiest way being:
+
+```
+winget ffmpeg
+```
+
+
+## Run the demo:
+
+## Final thoughts and other resources:
