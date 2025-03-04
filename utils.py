@@ -4,6 +4,7 @@ import pyttsx3
 import simpleaudio as sa
 import keyboard
 import importlib
+import os
 
 
 def load_file(file_path):
@@ -75,3 +76,11 @@ def execute_or_repeat():
             return True
         elif key == 'l':
             return False
+
+def verify_path(p):
+    print(f"Current working directory: {os.getcwd()}")
+    # Check if the file exists
+    if os.path.exists(p):
+        print(f"The file exists: {p}")
+    else:
+        print(f"The file does NOT exist: {p}")

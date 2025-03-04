@@ -71,6 +71,7 @@ def transcribe_audio(frames):
 
     # Transcribe the audio
     model = whisper.load_model("base.en")
+    print(f"Audio file path: {RECORDING_FILE_PATH}")
     result = model.transcribe(RECORDING_FILE_PATH, fp16=False)["text"]
     elapsed_time = time.time() - begin_time
     print("Transcription Time: " + str(elapsed_time))
