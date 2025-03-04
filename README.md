@@ -13,14 +13,14 @@ Code for the paper (still under review)
 ## Environment Set-up: 
 Download Microsoft C++ Build Tools (https://visualstudio.microsoft.com/visual-cpp-build-tools/) 
  
-Clone repo, create a new environment, and download the dependencies: 
+Clone the repo, create a new environment, and download the dependencies: 
 ```
 git clone [xxx]
 cd xxx
 [create a new environment]
 pip install -r requirements.txt
 ```
-Check if ffmpeg (which is required to handle audio) exist:
+Check if ffmpeg (which is required to handle audio) exists:
 ```
 ffmpeg -version
 ```
@@ -31,6 +31,6 @@ winget ffmpeg
 ```
 
 
-## Run the demo:
+## Run the Demo:
 
-## Final thoughts and other resources:
+## Final Thoughts: 
