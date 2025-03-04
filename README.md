@@ -12,9 +12,7 @@ Code for the paper (still under review)
 
 ## Environment Set-up: 
 Download Microsoft C++ Build Tools (https://visualstudio.microsoft.com/visual-cpp-build-tools/) 
-
-=======
-## Environment Set-up:  
+ 
 Clone repo, create a new environment, and download the dependencies: 
 ```
 git clone [xxx]
