@@ -1,7 +1,7 @@
 # LLM-powered Drone Companion for Blind and Low Vision People
 
 
-Code for the paper (still uner review)
+Code for the paper (still under review)
 
 ## Hardware and Software: 
 - Tello Drone (https://www.ryzerobotics.com/tello)
@@ -13,6 +13,8 @@ Code for the paper (still uner review)
 ## Environment Set-up: 
 Download Microsoft C++ Build Tools (https://visualstudio.microsoft.com/visual-cpp-build-tools/) 
 
+=======
+## Environment Set-up:  
 Clone repo, create a new environment, and download the dependencies: 
 ```
 git clone [xxx]
@@ -20,7 +22,6 @@ cd xxx
 [create a new environment]
 pip install -r requirements.txt
 ```
-
 Check if ffmpeg (which is required to handle audio) exist:
 ```
 ffmpeg -version
