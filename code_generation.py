@@ -5,42 +5,30 @@ import utils
 import os
 
 # participantid = input("Enter the participant's ID: ")
-participantid = 1
+# participantid = 1
 # ct = datetime.datetime.now()
 # Reformat cos windows files cannot have ":"
-ct = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+# ct = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     
-TEMPERATURE = 0.1
-LOG_FILE_PATH = f"logs/{participantid}_{ct}.txt"
+# TEMPERATURE = 0.1
+# LOG_FILE_PATH = f"logs/{participantid}_{ct}.txt"
+client = openai.OpenAI(api_key=utils.load_file('api_key.txt'))
 
 
-def get_chatgpt_code(messages, api_key):
+def get_chatgpt_code(messages, command, log_file_path):
     try:
-        begintime = time.time()
-        client = openai.OpenAI(api_key=api_key)
-
-        developer_prompt = utils.load_file("original_prompt.txt")
+        begin_time = time.time()
         
-        if isinstance(messages, str):
-            messages = [
-                {
-                    "role": "developer",
-                    "content": [{"type": "text", "text": developer_prompt}]
-                },
-                {
-                    "role": "user",
-                    "content": [{"type": "text", "text": messages}]
-                }
-            ]
+        if isinstance(command, str):
+            messages.append({"role": "user", "content": command})
         
         # send request 
         completion = client.chat.completions.create(
-            model="gpt-4o",  # todo: update model name
-            temperature=TEMPERATURE,
+            model="o3-mini",  # todo: update model name
             messages=messages
         )
     
-        elapsedtime = time.time() - begintime
+        elapsed_time = time.time() - begin_time
         output = completion.choices[0].message.content
         messages.append({"role": "assistant", "content": output})
 
@@ -63,10 +51,10 @@ def get_chatgpt_code(messages, api_key):
         with open('code.txt', 'w') as f:
             f.write(output_code)
 
-        os.makedirs(os.path.dirname(LOG_FILE_PATH), exist_ok=True)
-        with open(LOG_FILE_PATH, 'a') as f:
-            f.write(f'ChatGPT Response Time: {elapsedtime}\nChatGPT: {output_code}\n\n\n')
-        print("ChatGPT Response Time: " + str(elapsedtime))
+        os.makedirs(os.path.dirname(log_file_path), exist_ok=True)
+        with open(log_file_path, 'a') as f:
+            f.write(f'User:{command}\nResponse Time: {elapsed_time}\nChatGPT:\n{output_code}\n\n\n')
+        print("ChatGPT Response Time: " + str(elapsed_time))
 
         return output_description
    
