@@ -1,7 +1,11 @@
+import base64
+
 import pyaudio, wave, datetime, openai, time
 import pvporcupine
 import struct
 import math
+
+import requests
 import simpleaudio as sa
 import whisper
 import utils
@@ -70,12 +74,33 @@ def transcribe_audio(frames):
     wf.close()
 
     # Transcribe the audio
-    model = whisper.load_model("base.en")
+    google_key = utils.load_file('google_key.txt')
+    google_url = f"https://speech.googleapis.com/v1/speech:recognize?key={google_key}"
+
+    with open(RECORDING_FILE_PATH, "rb") as audio_file:
+        audio_content = base64.b64encode(audio_file.read()).decode("utf-8")
+
+    request = {
+        "config": {
+            "sampleRateHertz": 16000,
+            "languageCode": "en-US"
+        },
+        "audio": {
+            "content": audio_content
+        }
+    }
+
     begin_time = time.time()
-    result = model.transcribe(RECORDING_FILE_PATH, fp16=False)["text"]
+    response = requests.post(google_url, json=request)
+
+    if response.status_code != 200:
+        print("Transcription API Error")
+        return None
+
+    result = response.json()["results"][0]["alternatives"][0]["transcript"]
     elapsed_time = time.time() - begin_time
     print("Transcription Time: " + str(elapsed_time))
-    print("Text:" + result)
+    print("Text: " + result)
 
     with open('command_prompt.txt', 'w') as f:
         f.write(result)
