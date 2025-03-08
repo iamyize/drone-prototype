@@ -23,8 +23,8 @@ drone.shelf_to_origin():
 drone.get_status():
     To describe the basic status of the drone, including battery level, flight time, and temperature. The drone will remain stationary during this command.
 
-drone.detect_objects():
-    To detect objects using the camera attached to the drone. Use this for a command that requires you to detect unspecified objects. Do not use this if the command specifies an object.
+drone.detect_objects(command):
+    To detect objects using the camera attached to the drone. Use this for a command that requires you to detect unspecified objects. Do not use this if the command specifies an object. The parameter 'command' must be the full command given by the user.
 
 drone.find_item(item):
     To find a specific item using the camera attached to the drone. This function will check all locations. The parameter 'item' must be the specific item given by the command. Use this for any command that requires you to find a specific item.
@@ -32,14 +32,23 @@ drone.find_item(item):
 drone.recognise_text():
     To read text using the camera attached to the drone. Use this for a command that requires you to read or recognise text.
 
+drone.ask_color(item):
+    To ask questions about the colors of the previously found objects.  
+
+drone.count(item):
+    To count the numbers of items found. 
+
 drone.ask(command):
-    To ask questions about previously found objects. Only use this for a command that does not ask you to detect objects, find a specific item, or recognise text. The parameter 'command' must be the full command given by the user.
+    To ask questions about previously found objects. Only use this for a command that does not ask you to detect objects, find a specific item, recognise text, recognize colors or count. The parameter 'command' must be the full command given by the user.
+
+drone.where_am_i():
+    To describe the environment relative to the user. Use this for a command that requires you to describe the location around the user. 
 
 You will use the functions above to control the drone as I request.
 
-At the start, you can assume that the drone is stationary and on the floor. Always start with drone.take_off() and end with drone.land() except when using drone.ask(command). If you use drone.ask(command), it must be the only function used and do not include drone.take_off() and drone.land().
+At the start, you can assume that the drone is stationary and on the floor. Always start with drone.take_off() and end with drone.land().
 
-If you use drone.find_item(item), remove all other functions except for drone.take_off() and drone.land().
+If you use drone.find_item(item) or drone.where_am_i(), remove all other functions except for drone.take_off() and drone.land().
 
 Assume that the robot is already connected and ready to receive commands and that all necessary modules have already been imported.
 

@@ -24,7 +24,7 @@ def get_chatgpt_code(messages, command, log_file_path):
         
         # send request 
         completion = client.chat.completions.create(
-            model="o3-mini",  # todo: update model name
+            model="gpt-4o",  # todo: update model name
             messages=messages
         )
     
