@@ -153,7 +153,7 @@ class TelloMovement:
 
         return image_path
 
-    def detect_objects(self):
+    def detect_objects(self, prompt):
         message = f"I am detecting objects"
         utils.speak(message)
 
@@ -164,7 +164,7 @@ class TelloMovement:
         with open(image_path, "rb") as image_file:
             base64_image = base64.b64encode(image_file.read()).decode('utf-8')
 
-        prompt = "List the 3 most important objects in the image. Keep it brief but in complete sentences."
+        prompt = prompt + "List the 3 most important objects. Keep it brief but in complete sentences."
         message = {
             "role": "user",
             "content": [
@@ -322,9 +322,135 @@ class TelloMovement:
         self.gpt_messages.append({"role": "assistant", "content": response})
 
         with open(self.log_file_path, 'a') as f:
-            f.write(f'Task: Detect objects\nUser: {command}\nChatGPT: {response}')
+            f.write(f'Task: Ask\nUser: {command}\nChatGPT: {response}')
 
         print(response)
         utils.speak(response)
 
+    def ask_color(self, item):
+        prompt = f"What colour is the {item}?"
 
+        message = {
+            "role": "user",
+            "content": [
+                {"type": "text", "text": prompt},
+            ],
+        }
+        self.gpt_messages.append(message)
+
+        image_description = self.client.chat.completions.create(
+            model="gpt-4o",
+            messages=self.gpt_messages,
+            max_tokens=300,
+        )
+
+        response = image_description.choices[0].message.content
+        self.gpt_messages.append({"role": "assistant", "content": response})
+
+        with open(self.log_file_path, 'a') as f:
+            f.write(f'Task: Ask color\nUser: {prompt}\nChatGPT: {response}')
+
+        print(response)
+        utils.speak(response)
+
+    def count(self, item):
+        prompt = f"How many {item} are there?"
+
+        message = {
+            "role": "user",
+            "content": [
+                {"type": "text", "text": prompt},
+            ],
+        }
+        self.gpt_messages.append(message)
+
+        image_description = self.client.chat.completions.create(
+            model="gpt-4o",
+            messages=self.gpt_messages,
+            max_tokens=300,
+        )
+
+        response = image_description.choices[0].message.content
+        self.gpt_messages.append({"role": "assistant", "content": response})
+
+        with open(self.log_file_path, 'a') as f:
+            f.write(f'Task: Count\nUser: {prompt}\nChatGPT: {response}')
+
+        print(response)
+        utils.speak(response)
+
+    def where_am_i_helper(self, image_paths):
+        message = f"I am checking the environment"
+        utils.speak(message)
+
+        print(f"Checking environment")
+        current_time = time.time()
+
+        base64_images = []
+        for image_path in image_paths:
+            with open(image_path, "rb") as image_file:
+                base64_images.append(base64.b64encode(image_file.read()).decode('utf-8'))
+
+        prompt = f"There are 2 images. The first image is where I am. The second image is what is on my left. Describe the objects in the images relative to my position. For example, 'There is a shelf on my left and a screen in front of me'."
+
+        message = {
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": prompt}
+                ]
+            }
+
+        for base64_image in base64_images:
+            message["content"].append({
+                "type": "image_url",
+                "image_url": {
+                    "url": f"data:image/jpeg;base64,{base64_image}"
+                }
+            })
+
+        self.gpt_messages.append(message)
+
+        image_description = self.client.chat.completions.create(
+            model="gpt-4o",
+            messages=[message],
+            max_tokens=300,
+        )
+
+        response = image_description.choices[0].message.content
+        self.gpt_messages.append({"role": "assistant", "content": response})
+
+        print(response)
+        elapsed_time = time.time() - current_time
+        print(elapsed_time)
+        with open(self.log_file_path, 'a') as f:
+            f.write(f'Task: Wher am I\nUser: {prompt}, {image_paths}\nChatGPT: {response}\n')
+        utils.speak(response)
+
+    def where_am_i(self):
+        image_paths = []
+
+        self.tello.go_xyz_speed(60, 0, 0, 25)
+        self.tello.rotate_counter_clockwise(60)
+        image_paths.append(self.capture_image())
+        utils.speak("I am taking a picture.")
+
+
+        self.tello.rotate_clockwise(90)
+        image_paths.append(self.capture_image())
+        utils.speak("I am taking a picture.")
+
+        # self.tello.rotate_clockwise(90)
+        # image_paths.append(self.capture_image())
+        # utils.speak("I am taking a picture.")
+        
+        with ThreadPoolExecutor(max_workers=2) as executor:
+            future = executor.submit(self.where_am_i_helper, image_paths)
+
+            self.tello.rotate_counter_clockwise(120)
+            self.tello.go_xyz_speed(-60, 0, 0, 25)
+        try:
+            future.result()
+        except Exception as e:
+            print(e)
+
+        
