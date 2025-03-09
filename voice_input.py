@@ -23,7 +23,7 @@ Get input from the microphone and append it to the prompt (which will be used to
 
 porcupine = pvporcupine.create(
   access_key= utils.load_file('picovoice_key.txt'),
-  keywords=['picovoice', 'grapefruit'], # just stupid examples 
+  keywords=['computer', 'porcupine'], # just stupid examples
   sensitivities = [0.5, 0.5] # a higher sensitivity results in fewer misses at the cost of increasing the false alarm rate. the default is 0.5. 
 )
 
@@ -34,13 +34,12 @@ mic_num = 0
 fs = porcupine.sample_rate
 
 audio_stream = pa.open(
-                rate=fs,
-                channels=channels,
-                format=sample_format,
-                input=True,
-                frames_per_buffer=porcupine.frame_length,
-                input_device_index=mic_num)
-
+    rate=fs,
+    channels=channels,
+    format=sample_format,
+    input=True,
+    frames_per_buffer=porcupine.frame_length,
+    input_device_index=mic_num)
 
 def rms(frame):
     count = len(frame)/2
@@ -111,31 +110,36 @@ def transcribe_audio(frames):
 def listen():
     frames = []
 
-    button_timeout = 30
-
     try:
-        print("Press the button once/'J' key when ready to give command, press the button twice/'L' key to end the program.")
-
-        start_command = utils.start_command_or_exit(timeout=button_timeout)
-
-        if not start_command:
-            if audio_stream.is_active():
-                audio_stream.stop_stream()
-            audio_stream.close()
-            pa.terminate()
-            return None
-
-        time.sleep(0.5)
+        print("Waiting for wake word. Say 'computer' to give a command, or say 'porcupine' to end the program.")
         audio_stream.start_stream()
-        playsound('./resources/sounds/command_start_beep.wav')
-        print("Started recording. Press the button once/'J' key to stop recording.")
 
-        end_command = utils.end_command()
+        while True:
+            data = audio_stream.read(porcupine.frame_length, exception_on_overflow=False)
+            pcm = struct.unpack_from("h" * porcupine.frame_length, data)
+            keyword_index = porcupine.process(pcm)
+            if keyword_index == 0:
+                playsound('./resources/sounds/command_start_beep.wav')
+                print("Started recording. Say 'porcupine' to stop recording.")
+                break
+            elif keyword_index == 1:
+                if audio_stream.is_active():
+                    audio_stream.stop_stream()
+                audio_stream.close()
+                pa.terminate()
+                porcupine.delete()
+                return None
 
-        while not end_command[0]:
-            data = audio_stream.read(1024)
+        while True:
+            data = audio_stream.read(porcupine.frame_length, exception_on_overflow=False)
             frames.append(data)
-            time.sleep(0.01)
+            pcm = struct.unpack_from("h" * porcupine.frame_length, data)
+            keyword_index = porcupine.process(pcm)
+            if keyword_index == 1:
+                # remove 2nd wake word frames, value is arbitrary for now
+                frames = frames[:-(fs//porcupine.frame_length)]
+                print("Wake word detected! Stopping recording...")
+                break
 
     except KeyboardInterrupt:
         print("Stopping...")
