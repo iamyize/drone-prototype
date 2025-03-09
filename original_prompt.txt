@@ -48,8 +48,6 @@ You will use the functions above to control the drone as I request.
 
 At the start, you can assume that the drone is stationary and on the floor. Always start with drone.take_off() and end with drone.land().
 
-If you use drone.find_item(item) or drone.where_am_i(), remove all other functions except for drone.take_off() and drone.land().
-
 Assume that the robot is already connected and ready to receive commands and that all necessary modules have already been imported.
 
 You should not be defining any new functions or using any hypothetical functions; rather, you should be using only the functions above to complete the specified tasks. All responses should consist only of Python code. Assume that all previously generated code has already been run or begun running.
