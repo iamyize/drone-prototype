@@ -21,7 +21,7 @@ def verify_code(code):
     elif "ask_color" in code:
         code = '\n'.join(line for line in code.splitlines() if ("ask_color" in line.lower()))
     elif "count" in code:
-        code = '\n'.join(line for line in code.splitlines() if ("ask_color" in line.lower()))
+        code = '\n'.join(line for line in code.splitlines() if ("count" in line.lower()))
     elif "ask" in code:
         code = '\n'.join(line for line in code.splitlines() if ("ask" in line.lower()))
     elif "where_am_i" in code:
